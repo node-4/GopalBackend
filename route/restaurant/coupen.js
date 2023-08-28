@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const createError = require('http-errors');
 
-const { restaurantAuthMiddleware} = require('../../middleware/jwt');
-const {createCouponByRestaurant,getAllCouponsOfRestaurant,deleteCouponById } = require('../../controller/restaurant/coupen');
+const { restaurantAuthMiddleware } = require('../../middleware/jwt');
+const { createCouponByRestaurant, getAllCouponsOfRestaurant, deleteCouponById } = require('../../controller/restaurant/coupen');
 
 router.route('/createcoupen').post(restaurantAuthMiddleware,/*cpUpload,*/createCouponByRestaurant)
-router.route('/getAllCouponsOfRestaurant/:coupencode').get(restaurantAuthMiddleware,getAllCouponsOfRestaurant)
+router.route('/getAllCouponsOfRestaurant/:coupencode').get(getAllCouponsOfRestaurant)
 router.route('/deleteCouponById/:couponId').delete(restaurantAuthMiddleware,/*cpUpload,*/deleteCouponById);
 router.route('/')
 // router.route('/adminMeal').get(/*adminAuthMiddleware,*/getMealByAdmin)

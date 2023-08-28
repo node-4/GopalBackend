@@ -39,7 +39,7 @@ exports.getAllCouponsOfRestaurant = async (req, res, next) => {
   try {
     console.log("hit restaurant get all coupons of himself ");
     const requiredResults = await Coupon.find({
-      coupencode: req.params.coupencode,
+      restaurantId: req.params.coupencode,
     }).lean();
 
     if (requiredResults.length === 0)
