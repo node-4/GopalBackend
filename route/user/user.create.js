@@ -4,17 +4,16 @@ const router = express.Router();
 const { userAuthMiddleware } = require('../../middleware/jwt');
 const createError = require('http-errors');
 
-const { loginUserSendOtp, verifySignIn,loginUserVerifyOtp,socialLogin, addDetails, saveCurrentLocation, getCurrentUser, editCurrentUser } = require('../../controller/user/user.create');
+const { loginUserSendOtp, verifySignIn, loginUserVerifyOtp, socialLogin, addDetails, saveCurrentLocation, getCurrentUser, editCurrentUser } = require('../../controller/user/user.create');
 
-
-router.route('/users/sendOtp').post(loginUserSendOtp);
-// router.route('/users/verifyOtp').post(verifySignIn); 
-router.route('/users/loginUserVerifyOtp').post(loginUserVerifyOtp); //
-router.route('/users/socialLogin').post(socialLogin); 
-router.route('/users/add-details').patch(userAuthMiddleware, addDetails);
-router.route('/users/save-location').patch(userAuthMiddleware, saveCurrentLocation);
-
-router.route('/users/me').get(userAuthMiddleware, getCurrentUser).patch(userAuthMiddleware,/* upload.single('profile'),*/ editCurrentUser);
-
-module.exports = router;
+module.exports = (app) => {
+        app.post("/api/users/sendOtp", loginUserSendOtp);
+        // app.post("/api/users/verifyOtp", verifySignIn);
+        app.post("/api/users/loginUserVerifyOtp", loginUserVerifyOtp);
+        app.post("/api/users/socialLogin", socialLogin);
+        app.patch("/api/users/add-details", userAuthMiddleware, addDetails);
+        app.patch("/api/users/save-location", userAuthMiddleware, saveCurrentLocation);
+        app.get("/api/users/me", userAuthMiddleware, getCurrentUser);
+        app.patch("/api/users/me", userAuthMiddleware,/* upload.single('profile'),*/ editCurrentUser);
+}
 

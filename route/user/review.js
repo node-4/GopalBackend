@@ -3,13 +3,12 @@ const router = express.Router();
 const createError = require('http-errors');
 
 //const { adminAuthMiddleware} = require('../../middleware/jwt');
-const {createReviewOfRestaurantByUser,getAllReviewOfRestaurantByUser,updateReviewOfRestaurantByUser,deleteReviewOfRestaurantByUser,findAverageRatingforrestaurant,sortAccToAvgStarRatingforrestaurant} = require('../../controller/user/review');
-
-router.route('/createReviewOfRestaurantByUser/:restaurantId').post(createReviewOfRestaurantByUser)
-router.route('/getAllReviewOfRestaurantByUser').get(getAllReviewOfRestaurantByUser)
-router.route('/updateReviewOfRestaurantByUser/:restaurantId').put(updateReviewOfRestaurantByUser)
-router.route('/deleteReviewOfRestaurantByUser/:restaurantId').put(deleteReviewOfRestaurantByUser)
-router.route('/findAverageRatingforrestaurant/:restaurantId').get(findAverageRatingforrestaurant)
-router.route('/sortAccToAvgStarRatingforrestaurant').get(sortAccToAvgStarRatingforrestaurant)
-
-module.exports = router;
+const { createReviewOfRestaurantByUser, getAllReviewOfRestaurantByUser, updateReviewOfRestaurantByUser, deleteReviewOfRestaurantByUser, findAverageRatingforrestaurant, sortAccToAvgStarRatingforrestaurant } = require('../../controller/user/review');
+module.exports = (app) => {
+        app.post('/api/createReviewOfRestaurantByUser/:restaurantId', createReviewOfRestaurantByUser);
+        app.get('/api/getAllReviewOfRestaurantByUser', getAllReviewOfRestaurantByUser);
+        app.put('/api/updateReviewOfRestaurantByUser/:restaurantId', updateReviewOfRestaurantByUser);
+        app.put('/api/deleteReviewOfRestaurantByUser/:restaurantId', deleteReviewOfRestaurantByUser);
+        app.get('/api/findAverageRatingforrestaurant/:restaurantId', findAverageRatingforrestaurant);
+        app.get('/api/sortAccToAvgStarRatingforrestaurant', sortAccToAvgStarRatingforrestaurant)
+}

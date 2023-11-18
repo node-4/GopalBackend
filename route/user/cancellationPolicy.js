@@ -3,10 +3,9 @@ const router = express.Router();
 const createError = require('http-errors');
 
 //const { adminAuthMiddleware} = require('../../middleware/jwt');
-const {getAllCancellationPolicyByUser,getCancellationPolicyByIdByUser} = require('../../controller/user/cancellationPolicy');
+const { getAllCancellationPolicyByUser, getCancellationPolicyByIdByUser } = require('../../controller/user/cancellationPolicy');
 
-
- router.route('/getAllCancellationPolicyByUser').get(getAllCancellationPolicyByUser)
- router.route('/getCancellationPolicyByIdByUser/:id').get(getCancellationPolicyByIdByUser)
-
-module.exports = router;
+module.exports = (app) => {
+        app.get('/api/getAllCancellationPolicyByUser', getAllCancellationPolicyByUser);
+        app.get('/api/getCancellationPolicyByIdByUser/:id', getCancellationPolicyByIdByUser);
+}
