@@ -11,5 +11,5 @@ module.exports = (app) => {
         app.get('/api/createMeal', /*restaurantAuthMiddleware,*/ getMeal);
         app.patch('/api/createMeal', /*restaurantAuthMiddleware, cpUpload,*/ editMeal);
         app.get('/api/adminMeal', /*adminAuthMiddleware,*/ getMealByAdmin);
-        app.get('/api/userMeal', /*userAuthMiddleware,*/ getMealByUser);
+        app.get('/api/user/Meal', /*userAuthMiddleware,*/ getMealByUser);
 };
