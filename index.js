@@ -41,36 +41,36 @@ require('./route/user/paymentOfCateringServices')(app);
 require('./route/user/notification')(app);
 require('./route/user/review')(app);
 
-// /// admin routes use
-// require('./route/admin/adminCreate')(app);
-// require('./route/admin/payment')(app);
-// require('./route/admin/coupen')(app);
-// require('./route/admin/cancellationPolicy')(app);
-// require('./route/admin/booking')(app);
-// require('./route/admin/bookingOfCateringServices')(app);
-// require('./route/admin/paymentOfCateringServices')(app);
-// require('./route/admin/notification')(app);
-// require('./route/admin/restaurantCreate')(app);
-// require('./route/admin/userCreate')(app);
-// require('./route/admin/privacy')(app);
-// require('./route/admin/aboutus')(app);
-// require('./route/admin/userCreate')(app);
+/// admin routes use
+require('./route/admin/adminCreate')(app);
+require('./route/admin/payment')(app);
+require('./route/admin/coupen')(app);
+require('./route/admin/cancellationPolicy')(app);
+require('./route/admin/booking')(app);
+require('./route/admin/bookingOfCateringServices')(app);
+require('./route/admin/paymentOfCateringServices')(app);
+require('./route/admin/notification')(app);
+require('./route/admin/restaurantCreate')(app);
+require('./route/admin/userCreate')(app);
+require('./route/admin/privacy')(app);
+require('./route/admin/aboutus')(app);
+require('./route/admin/userCreate')(app);
 
 // /// restaurant routes use
 
-// require('./route/restaurant/restaurantCreate')(app);
-// require('./route/restaurant/restaurantBanner')(app);
-// require('./route/restaurant/restaurantPlanType')(app);
-// require('./route/restaurant/restaurantMeal')(app);
-// require('./route/restaurant/dishes')(app);
-// require('./route/restaurant/payment')(app);
-// require('./route/restaurant/coupen')(app);
-// require('./route/restaurant/cancellationPolicy')(app);
-// require('./route/restaurant/bookingOfCateringServices')(app);
-// require('./route/restaurant/paymentOfCateringServices')(app);
-// require('./route/restaurant/notification')(app);
-// //app.use('/api',reviewRestaurantRoute)
-// require('./route/restaurant/booking')(app);
+require('./route/restaurant/restaurantCreate')(app);
+require('./route/restaurant/restaurantBanner')(app);
+require('./route/restaurant/restaurantPlanType')(app);
+require('./route/restaurant/restaurantMeal')(app);
+require('./route/restaurant/dishes')(app);
+require('./route/restaurant/payment')(app);
+require('./route/restaurant/coupen')(app);
+require('./route/restaurant/cancellationPolicy')(app);
+require('./route/restaurant/bookingOfCateringServices')(app);
+require('./route/restaurant/paymentOfCateringServices')(app);
+require('./route/restaurant/notification')(app);
+// app.use('/api',reviewRestaurantRoute)
+require('./route/restaurant/booking')(app);
 
 
 

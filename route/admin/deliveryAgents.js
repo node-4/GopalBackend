@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const deliveryAgentController = require('../../controller/admin/deliveryAgents');
-
-router.post('/createDeliveryAgent', deliveryAgentController.createDeliveryAgent);
-router.get('/getDeliveryAgents', deliveryAgentController.getDeliveryAgents);
-router.get('/getDeliveryAgentById/:id', deliveryAgentController.getDeliveryAgentById);
-router.put('/updateDeliveryAgent/:id', deliveryAgentController.updateDeliveryAgent);
-router.delete('/deleteDeliveryAgent/:id', deliveryAgentController.deleteDeliveryAgent);
-
-module.exports = router;
+module.exports = (app) => {
+        app.post('/api/createDeliveryAgent', deliveryAgentController.createDeliveryAgent);
+        app.get('/api/getDeliveryAgents', deliveryAgentController.getDeliveryAgents);
+        app.get('/api/getDeliveryAgentById/:id', deliveryAgentController.getDeliveryAgentById);
+        app.put('/api/updateDeliveryAgent/:id', deliveryAgentController.updateDeliveryAgent);
+        app.delete('/api/deleteDeliveryAgent/:id', deliveryAgentController.deleteDeliveryAgent);
+};

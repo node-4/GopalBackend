@@ -1,16 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const createError = require('http-errors');
-
 const { restaurantAuthMiddleware } = require('../../middleware/jwt');
 const { createCouponByRestaurant, getAllCouponsOfRestaurant, deleteCouponById } = require('../../controller/restaurant/coupen');
+module.exports = (app) => {
+        app.post('/api/createcoupen', restaurantAuthMiddleware,/*cpUpload,*/createCouponByRestaurant);
+        app.get('/api/getAllCouponsOfRestaurant/:coupencode', getAllCouponsOfRestaurant);
+        app.delete('/api/deleteCouponById/:couponId', restaurantAuthMiddleware,/*cpUpload,*/deleteCouponById);
 
-router.route('/createcoupen').post(restaurantAuthMiddleware,/*cpUpload,*/createCouponByRestaurant)
-router.route('/getAllCouponsOfRestaurant/:coupencode').get(getAllCouponsOfRestaurant)
-router.route('/deleteCouponById/:couponId').delete(restaurantAuthMiddleware,/*cpUpload,*/deleteCouponById);
-router.route('/')
-// router.route('/adminMeal').get(/*adminAuthMiddleware,*/getMealByAdmin)
-// router.route('/userMeal').get(/*userAuthMiddleware,*/getMealByUser)
+        // router.route('/adminMeal').get(/*adminAuthMiddleware,*/getMealByAdmin)
+        // router.route('/userMeal').get(/*userAuthMiddleware,*/getMealByUser)
 
-
-module.exports = router;
+}

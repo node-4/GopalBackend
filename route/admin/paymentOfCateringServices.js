@@ -2,13 +2,10 @@ const express = require('express');
 //const  payment = require('../controllers/admin/payment')
 const AdminPayment = require('../../controller/admin/paymentOfCateringServices')
 const paymentRouter = express();
+module.exports = (app) => {
 
-//ADMIN
-
-paymentRouter.get('/users/GetAllPaymentsOfCateringByAdmin', AdminPayment.GetAllPaymentsOfCateringByAdmin)
-paymentRouter.get('/GetPaymentOfCateringServicesByAdmin/:user', AdminPayment.GetPaymentOfCateringServicesByAdmin)
-paymentRouter.put('/updatecateringPaymentOrder/:id', AdminPayment.updatecateringPaymentOrder)
-paymentRouter.delete('/deletecateringsPaymentById', AdminPayment.deletecateringsPaymentById)
-
-
-module.exports = paymentRouter;
+        app.get('/api/users/GetAllPaymentsOfCateringByAdmin', AdminPayment.GetAllPaymentsOfCateringByAdmin);
+        app.get('/api/GetPaymentOfCateringServicesByAdmin/:user', AdminPayment.GetPaymentOfCateringServicesByAdmin);
+        app.put('/api/updatecateringPaymentOrder/:id', AdminPayment.updatecateringPaymentOrder);
+        app.delete('/api/deletecateringsPaymentById', AdminPayment.deletecateringsPaymentById);
+};

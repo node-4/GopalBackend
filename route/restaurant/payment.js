@@ -3,13 +3,12 @@ const express = require('express');
 const restaurant = require('../../controller/restaurant/payment')
 const paymentRouter = express();
 
-//RESTAURANT
-paymentRouter.get('/restaurant/GetPaymentByRestaurantId/:id', restaurant.GetPaymentByRestaurantId)
-paymentRouter.get('/GetpaymentOfCateringByRestaurantId/:id', restaurant.GetpaymentOfCateringByRestaurantId)
-paymentRouter.get('/GetAllPaymentsOfCateringByRestaurant', restaurant.GetAllPaymentsOfCateringByRestaurant)
-paymentRouter.post('/CreatePaymentByRestaurant/:id', restaurant.CreatePaymentByRestaurant)
-paymentRouter.get('/GetPaymentOfCateringServicesByRestaurant/:user', restaurant.GetPaymentOfCateringServicesByRestaurant)
-paymentRouter.put('/updatecateringPaymentByRestaurant/:id', restaurant.updatecateringPaymentByRestaurant)
-paymentRouter.delete('/deletecateringsPaymentByRestaurant/:id', restaurant.deletecateringsPaymentByRestaurant)
-
-module.exports = paymentRouter;
+module.exports = (app) => {
+        app.get('/api/restaurant/GetPaymentByRestaurantId/:id', restaurant.GetPaymentByRestaurantId);
+        app.get('/api/GetpaymentOfCateringByRestaurantId/:id', restaurant.GetpaymentOfCateringByRestaurantId);
+        app.get('/api/GetAllPaymentsOfCateringByRestaurant', restaurant.GetAllPaymentsOfCateringByRestaurant);
+        app.post('/api/CreatePaymentByRestaurant/:id', restaurant.CreatePaymentByRestaurant);
+        app.get('/api/GetPaymentOfCateringServicesByRestaurant/:user', restaurant.GetPaymentOfCateringServicesByRestaurant);
+        app.put('/api/updatecateringPaymentByRestaurant/:id', restaurant.updatecateringPaymentByRestaurant);
+        app.delete('/api/deletecateringsPaymentByRestaurant/:id', restaurant.deletecateringsPaymentByRestaurant);
+};

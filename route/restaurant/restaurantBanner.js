@@ -6,14 +6,11 @@ const { restaurantAuthMiddleware, adminAuthMiddleware, userAuthMiddleware } = re
 const { addBanner, getBanner, updateBanner, deleteBanner, } = require('../../controller/restaurant/restaurantBanner');
 const { getBannerByAdmin } = require('../../controller/admin/restaurantBanner');
 const { getBannerByUser } = require('../../controller/user/restaurantBanner');
-
-
-//restaurant
-router.route('/banner').post(/*restaurantAuthMiddleware,/*cpUpload,*/addBanner).get(/*restaurantAuthMiddleware,*/getBanner)
-router.route('/adminbanner').get(/*adminAuthMiddleware,*/getBannerByAdmin)
-router.route('/user/banner').get(/*userAuthMiddleware,*/getBannerByUser)
-router.route('/updateBanner/:id').put(/*restaurantAuthMiddleware,/*cpUpload,*/updateBanner)
-router.route('/deleteBanner/:id').delete(deleteBanner)
-
-
-module.exports = router;
+module.exports = (app) => {
+        app.post('/api/banner', /*restaurantAuthMiddleware,/*cpUpload,*/ addBanner);
+        app.get('/api/banner', /*restaurantAuthMiddleware,*/ getBanner);
+        app.get('/api/adminbanner', /*adminAuthMiddleware,*/ getBannerByAdmin);
+        app.get('/api/user/banner', /*userAuthMiddleware,*/ getBannerByUser);
+        app.put('/api/updateBanner/:id', /*restaurantAuthMiddleware,/*cpUpload,*/ updateBanner);
+        app.delete('/api/deleteBanner/:id', deleteBanner);
+};

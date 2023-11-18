@@ -10,17 +10,12 @@ const {
 } = require("../../controller/admin/restaurantCreate");
 const { restaurantAuthMiddleware } = require("../../middleware/jwt");
 
-router.route("/restaurant/register1").post(registerRestaurant);
-router.route("/restaurant/login").post(restaurantLogin);
-router
-  .route("/updateLocationOfRestaurant")
-  .put(restaurantAuthMiddleware, updateLocationOfRestaurant);
-router.route("/restaurant/me").get(restaurantAuthMiddleware, me);
-router
-  .route("/updateMeRestaurant")
-  .put(restaurantAuthMiddleware, updateMeRestaurant);
-router
-  .route("/deleteByRestaurant/:categoryId")
-  .delete(/*restaurantAuthMiddleware,*/ deleteByRestaurant);
+module.exports = (app) => {
 
-module.exports = router;
+  app.post('/api/restaurant/register1', registerRestaurant);
+  app.post('/api/restaurant/login', restaurantLogin);
+  app.put('/api/updateLocationOfRestaurant', restaurantAuthMiddleware, updateLocationOfRestaurant);
+  app.get('/api/restaurant/me', restaurantAuthMiddleware, me);
+  app.put('/api/updateMeRestaurant', restaurantAuthMiddleware, updateMeRestaurant);
+  app.delete('/api/deleteByRestaurant/:categoryId', /*restaurantAuthMiddleware,*/ deleteByRestaurant);
+};

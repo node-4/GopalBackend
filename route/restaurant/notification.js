@@ -3,11 +3,9 @@ const router = express.Router();
 const createError = require('http-errors');
 
 //const { adminAuthMiddleware} = require('../../middleware/jwt');
-const {getAllNotificationByRestaurant,getNotificationByIdByRestaurant} = require('../../controller/restaurant/notification');
+const { getAllNotificationByRestaurant, getNotificationByIdByRestaurant } = require('../../controller/restaurant/notification');
 
-
-router.route('/getAllNotificationByRestaurant').get(getAllNotificationByRestaurant)
-router.route('/getNotificationByIdByRestaurant/:id').get(getNotificationByIdByRestaurant)
-
-
-module.exports = router;
+module.exports = (app) => {
+        app.get('/api/getAllNotificationByRestaurant', getAllNotificationByRestaurant);
+        app.get('/api/getNotificationByIdByRestaurant/:id', getNotificationByIdByRestaurant);
+};

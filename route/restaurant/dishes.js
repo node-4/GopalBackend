@@ -1,33 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const createError = require('http-errors');
-
 const { restaurantAuthMiddleware, adminAuthMiddleware, userAuthMiddleware } = require('../../middleware/jwt');
 const { getDishByAdmin, getDishByIdByAdmin, searchDishByUserAccToNumRatingByAdmin, createDishByAdmin, editDishByAdmin, editDishByIdByAdmin, getDishByIdOfRestaurantByAdmin, deleteDishesByAdmin } = require('../../controller/admin/dishes');
 const { createDish, getDish, editDish, getDishByIdOfRestaurant, getdishesByName } = require('../../controller/restaurant/dishes');
 const { getDishByUser, getDishByIdByUser, searchDishByUserAccToNumRating } = require('../../controller/user/dishes');
+module.exports = (app) => {
+        // RESTAURANT
+        app.post('/api/createDishes', restaurantAuthMiddleware,/*cpUpload,*/createDish);
+        app.get('/api/createDishes', /*restaurantAuthMiddleware,*/ getDish);
+        app.patch('/api/createDishes', restaurantAuthMiddleware,/*cpUpload,*/ editDish);
+        app.get('/api/getDishes/:id', /*restaurantAuthMiddleware,*/ getDishByIdOfRestaurant);
+        app.get('/api/getdishesByName/:dishName', getdishesByName);
 
+        // ADMIN
+        app.get('/api/adminDishes', adminAuthMiddleware, getDishByAdmin);
+        app.get('/api/getDishByIdByAdmin/:id', getDishByIdByAdmin);
+        app.get('/api/searchDishByUserAccToNumRatingByAdmin/:dishName', adminAuthMiddleware, searchDishByUserAccToNumRatingByAdmin);
+        app.post('/api/createDishByAdmin', createDishByAdmin);
+        app.put('/api/editDishByAdmin/:id', editDishByAdmin);
+        app.put('/api/editDishByIdByAdmin/:id', editDishByIdByAdmin);
+        app.get('/api/getDishByIdOfRestaurantByAdmin/:id', getDishByIdOfRestaurantByAdmin);
+        app.delete('/api/deleteDishesByAdmin/:id', deleteDishesByAdmin);
 
-//RESTAURANT
-router.route('/createDishes').post(restaurantAuthMiddleware,/*cpUpload,*/createDish).get(/*restaurantAuthMiddleware,*/getDish).patch(restaurantAuthMiddleware,/*cpUpload,*/editDish)
-router.route('/getDishes/:id').get(/*restaurantAuthMiddleware,*/getDishByIdOfRestaurant)
-router.route('/getdishesByName/:dishName').get(getdishesByName)
-
-
-//ADMIN
-router.route('/adminDishes').get(adminAuthMiddleware, getDishByAdmin)
-router.route('/getDishByIdByAdmin/:id').get(getDishByIdByAdmin)
-router.route('/searchDishByUserAccToNumRatingByAdmin/:dishName').get(adminAuthMiddleware, searchDishByUserAccToNumRatingByAdmin)
-router.route('/createDishByAdmin').post(createDishByAdmin)
-router.route('/editDishByAdmin/:id').put(editDishByAdmin)
-router.route('/editDishByIdByAdmin/:id').put(editDishByIdByAdmin)
-router.route('/getDishByIdOfRestaurantByAdmin/:id').get(getDishByIdOfRestaurantByAdmin)
-router.route('/deleteDishesByAdmin/:id').delete(deleteDishesByAdmin)
-
-
-//USER
-router.route('/getDish/ByUser').get(userAuthMiddleware, getDishByUser)
-router.route('/getDishByIdByUser/:id').get(userAuthMiddleware, getDishByIdByUser)//
-router.route('/searchDishByUserAccToNumRating/:dishName').get(userAuthMiddleware, searchDishByUserAccToNumRating)
-
-module.exports = router;
+        // USER
+        app.get('/api/getDish/ByUser', userAuthMiddleware, getDishByUser);
+        app.get('/api/getDishByIdByUser/:id', userAuthMiddleware, getDishByIdByUser);
+        app.get('/api/searchDishByUserAccToNumRating/:dishName', userAuthMiddleware, searchDishByUserAccToNumRating);
+};
