@@ -1,30 +1,37 @@
 {
-  "name": "ls",
+  "name": "gopalbackend",
   "version": "1.0.0",
-  "description": "",
+  "description": "\"# GopalBackend\"",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-4/GopalBackend.git"
   },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/node-4/GopalBackend/issues"
+  },
+  "homepage": "https://github.com/node-4/GopalBackend#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.0",
+    "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
-    "mongoose": "^6.9.1",
+    "mongoose": "^8.0.1",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.20",
+    "nodemon": "^3.0.1",
     "otp-generator": "^4.0.1",
     "path": "^0.12.7",
-    "razorpay": "^2.8.4",
-    "serverless": "^3.28.1",
+    "razorpay": "^2.9.2",
+    "serverless": "^3.37.0",
     "serverless-http": "^3.2.0",
-    "serverless-offline": "^12.0.4",
-    "vercel": "^30.2.3"
+    "serverless-offline": "^13.3.0",
+    "vercel": "^32.5.5"
   }
 }
