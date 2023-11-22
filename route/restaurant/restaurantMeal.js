@@ -10,6 +10,6 @@ module.exports = (app) => {
         app.post('/api/createMeal', /*restaurantAuthMiddleware, cpUpload,*/ createMeal);
         app.get('/api/createMeal', /*restaurantAuthMiddleware,*/ getMeal);
         app.patch('/api/createMeal', /*restaurantAuthMiddleware, cpUpload,*/ editMeal);
-        app.get('/api/adminMeal', /*adminAuthMiddleware,*/ getMealByAdmin);
+        app.get('/api/admin/Meal', /*adminAuthMiddleware,*/ getMealByAdmin);
         app.get('/api/user/Meal', /*userAuthMiddleware,*/ getMealByUser);
 };

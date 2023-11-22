@@ -24,9 +24,9 @@ exports.getPlanTypeById = async (req, res, next) => {
   try {
     console.log("hit get plantype which are for a particular user");
 
-    const datacreated = await plantype.find({ _id: req.params.id });
+    const datacreated = await plantype.findOne({ _id: req.params.id });
 
-    if (datacreated.length === 0)
+    if (!datacreated)
       return res.status(200).json({ message: "no plantype found" });
 
     return res.status(200).json({ datacreated });
@@ -60,9 +60,11 @@ exports.updatePlanType = async (req, res) => {
   try {
     const datacreated = await plantype.findOneAndUpdate(
       { _id: req.params.id },
-      {  Plantype: req.body.Plantype,
+      {
+        Plantype: req.body.Plantype,
         subtype: req.body.subtype,
-        mealPlate: req.body.mealPlate, },
+        mealPlate: req.body.mealPlate,
+      },
       { new: true }
     );
     if (!datacreated) {

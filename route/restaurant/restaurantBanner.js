@@ -8,7 +8,7 @@ const { getBannerByAdmin } = require('../../controller/admin/restaurantBanner');
 const { getBannerByUser } = require('../../controller/user/restaurantBanner');
 module.exports = (app) => {
         app.post('/api/banner', /*restaurantAuthMiddleware,/*cpUpload,*/ addBanner);
-        app.get('/api/banner', /*restaurantAuthMiddleware,*/ getBanner);
+        app.get('/api/banner/All', /*restaurantAuthMiddleware,*/ getBanner);
         app.get('/api/adminbanner', /*adminAuthMiddleware,*/ getBannerByAdmin);
         app.get('/api/user/banner', /*userAuthMiddleware,*/ getBannerByUser);
         app.put('/api/updateBanner/:id', /*restaurantAuthMiddleware,/*cpUpload,*/ updateBanner);

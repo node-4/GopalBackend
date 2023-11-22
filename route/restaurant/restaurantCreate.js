@@ -10,5 +10,5 @@ module.exports = (app) => {
         app.patch('/api/updateSubscription', restaurantAuthMiddleware, updateSubscription);
         app.get('/api/restaurant/me', restaurantAuthMiddleware, me);
         app.patch('/api/restaurant/me', restaurantAuthMiddleware/*,cpUpload*/, updateMeRestaurant);
-        app.get('/api/getAll', getAllrestaurant);
+        app.get('/api/restaurant/getAll', getAllrestaurant);
 };
