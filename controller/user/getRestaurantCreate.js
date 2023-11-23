@@ -1,18 +1,18 @@
 const createError = require('http-errors');
-const user = require('../../model/restaurantCreate');
+const restaurant = require('../../model/restaurantCreate');
 const mongoose = require('mongoose');
 
 
 exports.getRestaurantByUser = async (req, res, next) => {
     try {
         console.log('hit user get restaurant');
-console.log(req.params.typeOfMeal.toString())
-         const userData = await user.find({typeOfMeal:req.params.typeOfMeal.toString()});
-        if (!userData) return next(createError(400, 'cannot get the restaurant'));
+        console.log(req.params.typeOfMeal.toString())
+        const restaurantData = await restaurant.find({ typeOfMeal: req.params.typeOfMeal.toString() });
+        if (!restaurantData) return next(createError(400, 'cannot get the restaurant'));
 
-        return res.status(200).json(userData);
+        return res.status(200).json(restaurantData);
 
-    } catch (error) { 
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
             errorName: error.name,
@@ -27,13 +27,12 @@ console.log(req.params.typeOfMeal.toString())
 exports.getAllRestaurantByUser = async (req, res, next) => {
     try {
         console.log('hit user get restaurant');
-// console.log(req.params.typeOfMeal.toString())
-         const userData = await user.find()
-        if (!userData) return next(createError(400, 'cannot get the restaurant'));
+        const restaurantData = await restaurant.find()
+        if (!restaurantData) return next(createError(400, 'cannot get the restaurant'));
 
-        return res.status(200).json(userData);
+        return res.status(200).json(restaurantData);
 
-    } catch (error) { 
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
             errorName: error.name,
@@ -47,15 +46,14 @@ exports.getAllRestaurantByUser = async (req, res, next) => {
 exports.getAllRestaurantBytypeOfMealPlanType = async (req, res, next) => {
     try {
         console.log('hit user get restaurant');
-// console.log(req.params.typeOfMeal.toString())
-         const userData = await user.find({
-            typeOfMeal:req.params.typeOfMeal,Plantype:req.params.Plantype
-         })
-        if (!userData) return next(createError(400, 'cannot get the restaurant'));
+        const restaurantData = await restaurant.find({
+            typeOfMeal: req.params.typeOfMeal, Plantype: req.params.Plantype
+        })
+        if (!restaurantData) return next(createError(400, 'cannot get the restaurant'));
 
-        return res.status(200).json(userData);
+        return res.status(200).json(restaurantData);
 
-    } catch (error) { 
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
             errorName: error.name,

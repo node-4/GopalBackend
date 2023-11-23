@@ -30,6 +30,36 @@ app.get("/", (req, res) => {
   res.status(200).send({ msg: "Working App" });
 });
 
+
+////////////////////////////////////////////////////////////////////////////// new Routes///////////////////////////////////////////////////////////////////////////////////////////
+// admin routes use
+require('./routeNew/admin/adminCreate')(app);
+require('./routeNew/admin/restaurantCreate')(app);
+
+
+// restaurant routes use
+require('./routeNew/restaurant/restaurantCreate')(app);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////// old Routes///////////////////////////////////////////////////////////////////////////////////////////
 require('./route/user/user.create')(app);
 require('./route/user/getRestaurantCreate')(app);
 require('./route/user/booking')(app);

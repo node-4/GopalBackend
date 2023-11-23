@@ -1,14 +1,13 @@
 const otpGenerator = require("otp-generator");
 const createError = require("http-errors");
-
 const { genToken } = require('../../middleware/jwt');
 const User = require("../../model/userCreate");
 const Otp = require("../../model/Otp");
- const Cart = require('../../model/cart');
+const Cart = require('../../model/cart');
 const Notification = require('../../model/notification');
 const jwt = require("jsonwebtoken")
-
 //const { sendSms } = require('../../middlewares/twilioSms');
+const bcrypt = require("bcryptjs");
 
 exports.loginUserSendOtp = async (req, res /* next*/) => {
   try {
@@ -37,7 +36,6 @@ exports.loginUserSendOtp = async (req, res /* next*/) => {
     });
   }
 };
-
 // module.exports.verifySignIn = async (req, res) => {
 //   try {
 //     const otp = req.body.otp;
@@ -50,7 +48,7 @@ exports.loginUserSendOtp = async (req, res /* next*/) => {
 //     if (verifyOtp.otp === otp) {
 //       const userdata = await User.findOne({ mobile: verifyOtp.mobile });
 //       console.log(userdata);
-     
+
 
 //       if (
 //         !userdata ||
@@ -81,7 +79,6 @@ exports.loginUserSendOtp = async (req, res /* next*/) => {
 //     return res.status(400).json({ msg: error.message, name: error.name });
 //   }
 // };
-
 exports.loginUserVerifyOtp = async (req, res, next) => {
   try {
     const { otp } = req.body;
@@ -91,39 +88,39 @@ exports.loginUserVerifyOtp = async (req, res, next) => {
 
     if (otp !== requiredOtp.otp) return next(createError(400, "wrong otp"));
 
-    const user = await User.findOne({mobile:requiredOtp.mobile});
-    console.log(user); 
-// if(!user)return res .status(400).send({msg:"no data"})
+    const user = await User.findOne({ mobile: requiredOtp.mobile });
+    console.log(user);
+    // if(!user)return res .status(400).send({msg:"no data"})
 
-    if ( !user && otp === requiredOtp.otp ) {
-        const newUser = await User.create({
-          mobile: requiredOtp.mobile,
-        });
-        console.log(newUser); 
-        const userCart = await Cart.create({
-          user: newUser._id,
-        });
-  
-        if (!newUser || !userCart)
-          return next(
-            createError(400, "cannot save the user or create user cart")
-          );
-  
-        await Notification.create({
-          receiverUser: newUser._id,
-          body: `welcome ${newUser.mobile}`,
-        });
-  
-        const token = await genToken({ id: newUser._id, role: newUser.role });
-  
-        return res.status(200).json({
-          token,
-          user: newUser,
-        });
-      }
+    if (!user && otp === requiredOtp.otp) {
+      const newUser = await User.create({
+        mobile: requiredOtp.mobile,
+      });
+      console.log(newUser);
+      const userCart = await Cart.create({
+        user: newUser._id,
+      });
+
+      if (!newUser || !userCart)
+        return next(
+          createError(400, "cannot save the user or create user cart")
+        );
+
+      await Notification.create({
+        receiverUser: newUser._id,
+        body: `welcome ${newUser.mobile}`,
+      });
+
+      const token = await genToken({ id: newUser._id, role: newUser.role });
+
+      return res.status(200).json({
+        token,
+        user: newUser,
+      });
+    }
 
 
-    if ( user && otp === requiredOtp.otp ) {
+    if (user && otp === requiredOtp.otp) {
       await Notification.create({
         receiverUser: user._id,
         body: `welcome ${user.mobile}`,
@@ -145,26 +142,24 @@ exports.loginUserVerifyOtp = async (req, res, next) => {
     });
   }
 };
-
-
 exports.socialLogin = async (req, res) => {
   try {
     const { google_id, name, email } = req.body;
 
     const user = await User.findOne({ google_id: google_id });
     console.log(user);
-    if (!user ) {
+    if (!user) {
       const data1 = {
         google_id: req.body.google_id,
         name: req.body.name,
         email: req.body.email,
         profileImage: req.body.profileImage,
       };
-     
-      const create = await User.create(data1);
-      console.log(create)  
 
-      const accessToken1 = jwt.sign({id: create._id }, process.env.JWT_SECRET, {
+      const create = await User.create(data1);
+      console.log(create)
+
+      const accessToken1 = jwt.sign({ id: create._id }, process.env.JWT_SECRET, {
         expiresIn: "1d",
       });
 
@@ -176,7 +171,7 @@ exports.socialLogin = async (req, res) => {
       });
     }
 
-    const accessToken = jwt.sign({id: user._id },process.env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 
@@ -193,7 +188,6 @@ exports.socialLogin = async (req, res) => {
       .send({ error: "internal server error" + err.message });
   }
 };
-
 exports.addDetails = async (req, res, next) => {
   try {
     console.log("hit add details");
@@ -224,7 +218,6 @@ exports.addDetails = async (req, res, next) => {
     });
   }
 };
-
 exports.saveCurrentLocation = async (req, res, next) => {
   try {
     console.log("hit save current user current location");
@@ -256,12 +249,11 @@ exports.saveCurrentLocation = async (req, res, next) => {
     });
   }
 };
-
 exports.getCurrentUser = async (req, res, next) => {
   try {
     console.log("hit get current user");
 
-    const user = await User.findById({_id:req.user});
+    const user = await User.findById({ _id: req.user });
     console.log(user);
 
     if (!user) return next(createError(400, "user not found"));
@@ -275,15 +267,14 @@ exports.getCurrentUser = async (req, res, next) => {
     });
   }
 };
-
 exports.editCurrentUser = async (req, res, next) => {
   try {
     console.log("hit edit user details");
-    const { name, email, mobile, address, pincode,profileImage } = req.body;
+    const { name, email, mobile, address, pincode, profileImage } = req.body;
 
     //const path = `${req.file.destination}/${req.file.filename}`;
 
-   // if (!path) return next(createError(400, "please provide the profile "));
+    // if (!path) return next(createError(400, "please provide the profile "));
 
     const update = {
       name,
@@ -309,5 +300,60 @@ exports.editCurrentUser = async (req, res, next) => {
       errorName: error.name,
       errorMessage: error.message,
     });
+  }
+};
+exports.signUp = async (req, res) => {
+  try {
+    const userdata = await User.findOne({ mobile: req.body.mobile });
+    if (!userdata) {
+      const data = { mobile: req.body.mobile, name: req.body.name, address: req.body.address, pincode: req.body.pincode };
+      const user = await User.create(data);
+      if (user) {
+        const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false, });
+        const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
+        if (requiredOtp) {
+          let password = bcrypt.hashSync(req.body.password, 8);
+          const otpToUpdate = await Otp.findByIdAndUpdate({ _id: requiredOtp._id }, { $set: { otp: otp, password: password } }, { new: true });
+          if (otpToUpdate) {
+            return res.status(200).json({ msg: "signUp  successfully", data: user });
+          }
+        } else {
+          let password = bcrypt.hashSync(req.body.password, 8);
+          const otpToSend = await Otp.create({ mobile: req.body.mobile, otp: otp, password: password, });
+          if (otpToSend) {
+            return res.status(200).json({ msg: "signUp  successfully", data: user });
+          }
+        }
+      }
+    } else {
+      return res.status(400).send({ msg: "User already exit" });
+    }
+  } catch (error) {
+    return res.status(400).json({ msg: error.message, name: error.name });
+  }
+};
+exports.signIn = async (req, res) => {
+  try {
+    if (!req.body.mobile) {
+      return res.status(400).send({ message: "mobile is required" });
+    }
+    if (!req.body.password) {
+      return res.status(400).send({ message: "password is required" });
+    }
+    const admin = await User.findOne({ mobile: req.body.mobile, role: "user", });
+    if (!admin) {
+      return res.status(400).send({ message: "Failed! User passed doesn't exist" });
+    }
+    const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
+    if (requiredOtp) {
+      const passwordIsValid = bcrypt.compareSync(req.body.password, requiredOtp.password);
+      if (!passwordIsValid) {
+        return res.status(401).send({ message: "Wrong password" });
+      }
+      const accessToken1 = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
+      return res.status(200).send({ msg: "User logged in successfully", accessToken: accessToken1, });
+    }
+  } catch (err) {
+    return res.status(500).send({ message: "Internal server error while User signing in", });
   }
 };

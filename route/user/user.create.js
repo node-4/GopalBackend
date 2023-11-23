@@ -4,9 +4,11 @@ const router = express.Router();
 const { userAuthMiddleware } = require('../../middleware/jwt');
 const createError = require('http-errors');
 
-const { loginUserSendOtp, verifySignIn, loginUserVerifyOtp, socialLogin, addDetails, saveCurrentLocation, getCurrentUser, editCurrentUser } = require('../../controller/user/user.create');
+const { signUp, signIn, loginUserSendOtp, verifySignIn, loginUserVerifyOtp, socialLogin, addDetails, saveCurrentLocation, getCurrentUser, editCurrentUser } = require('../../controller/user/user.create');
 
 module.exports = (app) => {
+        app.post("/api/users/signUp", signUp);
+        app.post("/api/users/signIn", signIn);
         app.post("/api/users/sendOtp", loginUserSendOtp);
         // app.post("/api/users/verifyOtp", verifySignIn);
         app.post("/api/users/loginUserVerifyOtp", loginUserVerifyOtp);

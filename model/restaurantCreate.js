@@ -7,44 +7,35 @@ const restaurantSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      //  required: true
     },
     email: {
       type: String,
-    //  required: true,
       unique: true,
     },
     password: {
       type: String,
-      // required: true,
-     // select: false,
     },
     address: {
       type: String,
-      // required: true
     },
     profile: {
       type: String,
       default: "https://www.youtube.com/results?search_query=dubay+pathway+",
-//required: true
     },
     tagline: {
       type: String,
-     //  required: true
     },
     contact: {
       type: String,
-     // required: true
     },
     restaurantMenu: {
       type: String,
       default: "https://www.youtube.com/results?search_query=dubay+pathway+",
-      // required: true
     },
     role: {
       type: String,
-      //default: 'restaurant',
-      // enum: ['restaurant','Home Carriage Subscription','Catering Services']
+      default: 'restaurant',
+      enum: ['restaurant', 'Home Carriage Subscription', 'Catering Services']
     },
     numRatings: {
       type: Number,
@@ -60,12 +51,12 @@ const restaurantSchema = new mongoose.Schema(
     subscription: {
       type: subscriptionSchema,
     },
-    option:{
-        type:String,
+    option: {
+      type: String,
       //  enum:["veg","nonveg"]
     },
-   // typeOfMeal: { type: String },
-  
+    // typeOfMeal: { type: String },
+
   },
   {
     timestamps: true,

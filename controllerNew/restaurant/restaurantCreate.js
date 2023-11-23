@@ -22,7 +22,6 @@ exports.registerRestaurant = async (req, res, next) => {
     return res.status(500).json({ errorname: error.name, message: error.message, });
   }
 };
-
 exports.restaurantLogin = async (req, res, next) => {
   try {
     console.log("hit restaurant login");
@@ -43,7 +42,6 @@ exports.restaurantLogin = async (req, res, next) => {
     return res.status(500).json({ errorname: error.name, message: error.message, });
   }
 };
-
 exports.updateLocation = async (req, res, next) => {
   try {
     console.log("hit upload location of restaurant");
@@ -57,21 +55,6 @@ exports.updateLocation = async (req, res, next) => {
     return res.status(500).json({ errorname: error.name, message: error.message, });
   }
 };
-
-exports.updateSubscription = async (req, res, next) => {
-  try {
-    console.log("hit upload location of restaurant");
-    const { Plantype, typeOfPlate, plan } = req.body;
-    const updatedRestaurant = await Restaurant.findByIdAndUpdate(req.user, { subscription: { Plantype: Plantype, plan: plan, typeOfPlate: typeOfPlate }, }, { new: true });
-    if (!updatedRestaurant)
-      return next(createError(400, "cannot add the location"));
-    return res.status(200).send({ updatedRestaurant });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ errorname: error.name, message: error.message, });
-  }
-};
-
 exports.me = async (req, res, next) => {
   try {
     console.log("hit get current restaurant");
@@ -82,7 +65,6 @@ exports.me = async (req, res, next) => {
     return res.status(500).json({ errorname: error.name, message: error.message, });
   }
 };
-
 exports.getAllrestaurant = async (req, res, next) => {
   try {
     console.log("hit get current restaurant");
@@ -93,44 +75,22 @@ exports.getAllrestaurant = async (req, res, next) => {
     return res.status(500).json({ errorname: error.name, message: error.message, });
   }
 };
-
 exports.updateMeRestaurant = async (req, res, next) => {
   try {
     console.log("hit restaurant update profile (updateMeRestaurant)");
-
-    const { name, email, address, tagline, contact, profile, restaurantMenu } =
-      req.body;
-
-    // const { profile, menu } = req.files;
-
-    // if (!profile || !menu) return next(createError(400, 'please provide profile and the menu image'));
-
-    // const profilePath = `${profile[0].destination}/${profile[0].filename}`;
-    // const menuPath = `${menu[0].destination}/${menu[0].filename}`;
-
-    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
-      req.user,
-      {
-        name,
-        email,
-        address,
-        contact,
-        tagline,
-        profile,
-        restaurantMenu /* profile: profilePath, restaurantMenu: menuPath*/,
-      },
-      { new: true }
-    );
-
+    const { name, email, address, tagline, contact, profile, option, } = req.body;
+    const restaurant1 = await Restaurant.findById(req.user);
+    if (!restaurant1) return next(createError(400, "cannot find the restaurant"));
+    const userdata = await Restaurant.findOne({ $and: [{ $or: [{ contact: contact }, { email: email }], role: restaurant1.role, _id: { $ne: restaurant1._id } }] });
+    if (userdata) {
+      return res.status(400).send({ msg: "restaurant already exit" });
+    }
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(req.user, { $set: { name, email, address, contact, tagline, profile, option } }, { new: true })
     if (!updatedRestaurant)
       return next(createError(400, "cannot update the data of restaurant"));
-
     return res.status(200).json({ updatedRestaurant });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorname: error.name,
-      message: error.message,
-    });
+    return res.status(500).json({ errorname: error.name, message: error.message, });
   }
 };

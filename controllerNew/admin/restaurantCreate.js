@@ -1,9 +1,7 @@
 const createError = require("http-errors");
 const restaurantSchema = require("../../model/restaurantCreate");
-// const newOTP = require("otp-generator");
-// const SECRET = "demo@1234";
 const { genToken } = require("../../middleware/jwt");
-
+const bcrypt = require("bcryptjs");
 exports.registerRestaurant = async (req, res, next) => {
   try {
     const { name, email, address, tagline, contact, profile, role, option, } = req.body;
@@ -22,12 +20,38 @@ exports.registerRestaurant = async (req, res, next) => {
   }
 };
 
+
+
+exports.signIn = async (req, res) => {
+  try {
+    if (!req.body.email) {
+      return res.status(400).send({ message: "email is required" });
+    }
+    if (!req.body.password) {
+      return res.status(400).send({ message: "password is required" });
+    }
+    const admin = await restaurantSchema.findOne({ email: req.body.email });
+    if (!admin) {
+      return res.status(400).send({ message: "Failed! User passed doesn't exist" });
+    }
+    const requiredOtp = await Otp.findOne({ email: req.body.email });
+    if (requiredOtp) {
+      const passwordIsValid = bcrypt.compareSync(req.body.password, requiredOtp.password);
+      if (!passwordIsValid) {
+        return res.status(401).send({ message: "Incorrect email or password" });
+      }
+      const token = await genToken({ id: restaurant._id, role: restaurant.role });
+      return res.status(200).send({ msg: "User logged in successfully", accessToken: token, });
+    }
+  } catch (err) {
+    return res.status(500).send({ message: "Internal server error while User signing in", });
+  }
+};
 exports.restaurantLogin = async (req, res, next) => {
   try {
-    console.log("hit restaurant login");
     const { email, password } = req.body;
     if (!email || !password)
-      return next(createError(400, "please provide email and password"));
+      return next(createError(400, ""));
     const restaurant = await restaurantSchema.findOne({ email: email }).select("+password");
     if (!restaurant)
       return next(createError(400, "No restaurant exists with the provided email"));
@@ -44,96 +68,46 @@ exports.restaurantLogin = async (req, res, next) => {
     });
   }
 };
-
-
 exports.updateLocationOfRestaurant = async (req, res, next) => {
   try {
     console.log('hit upload location of restaurant');
     const { latLng } = req.body;
-
-    const updatedRestaurant = await restaurantSchema.findByIdAndUpdate(req.user, {
-      location: {
-        type: 'Point',
-        coordinates: latLng
-      }
-    }, { new: true });
-
+    const updatedRestaurant = await restaurantSchema.findByIdAndUpdate(req.params.id, { $set: { location: { type: 'Point', coordinates: latLng } } }, { new: true });
     if (!updatedRestaurant) return next(createError(400, 'cannot add the location'));
-
     return res.status(200).json({ updatedRestaurant });
-
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      errorname: error.name,
-      message: error.message
-    })
+    return res.status(500).json({ errorname: error.name, message: error.message })
   }
 }
-
-exports.me = async (req, res, next) => {
+exports.restaurantById = async (req, res, next) => {
   try {
-    console.log('hit get current restaurant');
-
-    const restaurant = await restaurantSchema.findById(req.user);
-
+    const restaurant = await restaurantSchema.findById(req.params.id);
     return res.status(200).json({ restaurant });
-
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      errorname: error.name,
-      message: error.message
-    })
+    return res.status(500).json({ errorname: error.name, message: error.message })
   }
 }
-
-exports.updateMeRestaurant = async (req, res, next) => {
+exports.updateRestaurant = async (req, res, next) => {
   try {
     console.log('hit restaurant update profile (updateMeRestaurant)');
-
     const { name, email, address, tagline, contact, profile, restaurantMenu } = req.body;
-
-    // const { profile, menu } = req.files;
-
-    // if (!profile || !menu) return next(createError(400, 'please provide profile and the menu image'));
-
-    // const profilePath = `${profile[0].destination}/${profile[0].filename}`;
-    // const menuPath = `${menu[0].destination}/${menu[0].filename}`;
-
-    const updatedRestaurant = await restaurantSchema.findByIdAndUpdate(req.user, {
-      name, email, address, contact, tagline, profile, restaurantMenu/* profile: profilePath, restaurantMenu: menuPath*/
-    }, { new: true });
-
+    const updatedRestaurant = await restaurantSchema.findByIdAndUpdate(req.params.id, { $set: { name, email, address, contact, tagline, profile, restaurantMenu/* profile: profilePath, restaurantMenu: menuPath*/ } }, { new: true });
     if (!updatedRestaurant) return next(createError(400, 'cannot update the data of restaurant'));
-
     return res.status(200).json({ updatedRestaurant });
-
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorname: error.name,
-      message: error.message
-    })
+    return res.status(500).json({ errorname: error.name, message: error.message })
   }
 }
-
 exports.deleteByRestaurant = async (req, res, next) => {
   try {
     console.log('hit delete category by id');
-    const { categoryId } = req.params;
-
-    const deletedCategory = await restaurantSchema.findOneAndDelete({ _id: categoryId });
-
+    const { id } = req.params;
+    const deletedCategory = await restaurantSchema.findOneAndDelete({ _id: id });
     if (!deletedCategory) return next(createError(400, 'cannot delete the category'));
-
     return res.status(200).json({ message: ' deletion successfull' });
-
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorname: error.name,
-      message: error.message
-    })
+    return res.status(500).json({ errorname: error.name, message: error.message })
   }
 }
