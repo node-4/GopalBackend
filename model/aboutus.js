@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
 const aboutusSchema = new mongoose.Schema({
-    privacypolicy: {
+  privacypolicy: {
     type: String,
-    //required: true
   },
 
 });

@@ -35,6 +35,9 @@ app.get("/", (req, res) => {
 // admin routes use
 require('./routeNew/admin/adminCreate')(app);
 require('./routeNew/admin/restaurantCreate')(app);
+require('./routeNew/admin/cancellationPolicy')(app);
+require('./routeNew/admin/privacy')(app);
+require('./routeNew/admin/aboutus')(app);
 
 
 // restaurant routes use
@@ -75,7 +78,7 @@ require('./route/user/review')(app);
 require('./route/admin/adminCreate')(app);
 require('./route/admin/payment')(app);
 require('./route/admin/coupen')(app);
-require('./route/admin/cancellationPolicy')(app);
+// require('./route/admin/cancellationPolicy')(app);
 require('./route/admin/booking')(app);
 require('./route/admin/bookingOfCateringServices')(app);
 require('./route/admin/paymentOfCateringServices')(app);

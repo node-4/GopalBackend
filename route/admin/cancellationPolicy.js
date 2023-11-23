@@ -8,6 +8,6 @@ module.exports = (app) => {
 
         app.post('/api/createCancellationPolicy', createCancellationPolicy);
         app.get('/api/getCancellationPolicy/:id', getCancellationPolicy);
-        app.get('/api/getAllCancellationPolicy', getAllCancellationPolicy);
+         app.get('/api/getAllCancellationPolicy', getAllCancellationPolicy);
         app.delete('/api/deleteCancellationPolicyById/:id', deleteCancellationPolicyById);
 };
