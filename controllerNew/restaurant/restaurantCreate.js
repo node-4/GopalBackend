@@ -18,7 +18,7 @@ exports.registerRestaurant = async (req, res, next) => {
         if (!accessToken1) {
           return res.status(400).send({ status: 400, message: "cannot generate the token" });
         }
-        return res.status(200).send({ status: 200, message: "restaurant create  successfully ", data: {newRestaurant, accessToken1} });
+        return res.status(200).send({ status: 200, message: "restaurant create  successfully ", data: { newRestaurant, accessToken1 } });
       }
     } else {
       return res.status(400).send({ status: 400, msg: "restaurant already exit" });
@@ -31,24 +31,24 @@ exports.registerRestaurant = async (req, res, next) => {
 exports.restaurantLogin = async (req, res) => {
   try {
     if (!req.body.email) {
-      return res.status(400).send({ message: "email is required" });
+      return res.status(400).send({ status: 400, message: "email is required" });
     }
     if (!req.body.password) {
-      return res.status(400).send({ message: "password is required" });
+      return res.status(400).send({ status: 400, message: "password is required" });
     }
     const admin = await Restaurant.findOne({ email: req.body.email });
     if (!admin) {
-      return res.status(400).send({ message: "Failed! restaurant passed doesn't exist" });
+      return res.status(400).send({ status: 400, message: "Failed! restaurant passed doesn't exist" });
     }
     const passwordIsValid = bcrypt.compare(req.body.password, admin.password);
     if (!passwordIsValid) {
-      return res.status(401).send({ message: "Wrong password" });
+      return res.status(401).send({ status: 401, message: "Wrong password" });
     }
     const accessToken1 = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
-    return res.status(200).send({ msg: "restaurant logged in successfully", accessToken: accessToken1, });
+    return res.status(200).send({ status: 200, msg: "restaurant logged in successfully", accessToken: accessToken1, });
 
   } catch (err) {
-    return res.status(500).send({ message: "Internal server error while restaurant signing in", });
+    return res.status(500).send({ status: 500, message: "Internal server error while restaurant signing in", });
   }
 };
 exports.updateLocation = async (req, res, next) => {

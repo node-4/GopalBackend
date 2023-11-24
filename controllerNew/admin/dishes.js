@@ -1,9 +1,9 @@
 const Dish = require("../../model/dishes");
 
-exports.createDish = async (req, res, next) => {
+exports.createDishByAdmin = async (req, res, next) => {
   try {
     console.log("hit dish");
-    const DishData = await Dish.findOne({ dishName: req.body.dishName, dishIsOfRestaurant: req.user });
+    const DishData = await Dish.findOne({ dishName: req.body.dishName, dishIsOfRestaurant: req.body.dishIsOfRestaurant });
     if (DishData) {
       return res.status(409).send({ status: 409, message: "Dish already exits" });
     }
@@ -17,7 +17,7 @@ exports.createDish = async (req, res, next) => {
       priceForSmallPortion: req.body.priceForSmallPortion,
       priceForMediumPortion: req.body.priceForMediumPortion,
       priceForLargePortion: req.body.priceForLargePortion,
-      dishIsOfRestaurant: req.user,
+      dishIsOfRestaurant: req.body.dishIsOfRestaurant,
       currency: req.body.currency,
       numLikes: req.body.numLikes,
       option: req.body.option,
@@ -31,9 +31,9 @@ exports.createDish = async (req, res, next) => {
     return res.status(500).json({ status: 500, errorName: error.name, message: error.message, });
   }
 };
-exports.getDish = async (req, res, next) => {
+exports.getDishByAdmin = async (req, res, next) => {
   try {
-    const DishData = await Dish.find({ dishIsOfRestaurant: req.user });
+    const DishData = await Dish.find({});
     if (DishData.length === 0) {
       return res.status(400).send({ status: 400, message: "cannot get the Dish" });
     } else {
@@ -44,7 +44,7 @@ exports.getDish = async (req, res, next) => {
     return res.status(500).json({ status: 500, errorName: error.name, message: error.message, });
   }
 };
-exports.getDishByIdOfRestaurant = async (req, res, next) => {
+exports.getDishByIdOfRestaurantByAdmin = async (req, res, next) => {
   try {
     console.log("hit restaurant get Dish");
     const DishData = await Dish.find({ dishIsOfRestaurant: req.params.id }).populate('dishIsOfRestaurant');
@@ -58,7 +58,7 @@ exports.getDishByIdOfRestaurant = async (req, res, next) => {
     return res.status(500).json({ errorName: error.name, message: error.message, });
   }
 };
-exports.getdishesByName = async (req, res, next) => {
+exports.searchDishByUserAccToNumRatingByAdmin = async (req, res, next) => {
   try {
     console.log("hit restaurant get Dish");
     const dish = req.params.dishName;
@@ -73,14 +73,14 @@ exports.getdishesByName = async (req, res, next) => {
     return res.status(500).json({ errorName: error.name, message: error.message, });
   }
 };
-exports.editDish = async (req, res, next) => {
+exports.editDishByAdmin = async (req, res, next) => {
   try {
     console.log("hit dish");
     const restaurant = await Dish.findById(req.params.id);
     if (!restaurant) {
       return res.status(400).send({ status: 400, msg: "Dish not found" });
     } else {
-      const DishData = await Dish.findOne({ _id: { $ne: restaurant._id }, dishName: req.body.dishName, dishIsOfRestaurant: req.user });
+      const DishData = await Dish.findOne({ _id: { $ne: restaurant._id }, dishName: req.body.dishName, dishIsOfRestaurant: req.body.dishIsOfRestaurant });
       if (DishData) {
         return res.status(409).send({ status: 409, message: "Dish already exits" });
       }
@@ -96,7 +96,7 @@ exports.editDish = async (req, res, next) => {
         priceForSmallPortion: req.body.priceForSmallPortion || restaurant.priceForSmallPortion,
         priceForMediumPortion: req.body.priceForMediumPortion || restaurant.priceForMediumPortion,
         priceForLargePortion: req.body.priceForLargePortion || restaurant.priceForLargePortion,
-        dishIsOfRestaurant: req.user || restaurant.dishIsOfRestaurant,
+        dishIsOfRestaurant: req.body.dishIsOfRestaurant || restaurant.dishIsOfRestaurant,
         currency: req.body.currency || restaurant.currency,
         numLikes: req.body.numLikes || restaurant.numLikes,
         option: req.body.option || restaurant.option,
@@ -112,7 +112,7 @@ exports.editDish = async (req, res, next) => {
     return res.status(500).json({ status: 500, errorName: error.name, message: error.message, });
   }
 };
-exports.getDishByID = async (req, res, next) => {
+exports.getDishByIdByAdmin = async (req, res, next) => {
   try {
     const DishData = await Dish.findOne({ _id: req.params.id }).populate('dishIsOfRestaurant');
     if (!DishData) {
@@ -125,7 +125,7 @@ exports.getDishByID = async (req, res, next) => {
     return res.status(500).json({ status: 500, errorName: error.name, message: error.message, });
   }
 };
-exports.deleteDish = async (req, res) => {
+exports.deleteDishesByAdmin = async (req, res) => {
   try {
     const Dishdata = await Dish.findOneAndDelete({ _id: req.params.id, });
     if (!Dishdata) {

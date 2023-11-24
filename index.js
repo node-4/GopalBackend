@@ -38,10 +38,14 @@ require('./routeNew/admin/restaurantCreate')(app);
 require('./routeNew/admin/cancellationPolicy')(app);
 require('./routeNew/admin/privacy')(app);
 require('./routeNew/admin/aboutus')(app);
+require('./routeNew/admin/dishes')(app);
 
 
 // restaurant routes use
 require('./routeNew/restaurant/restaurantCreate')(app);
+require('./routeNew/restaurant/dishes')(app);
+require('./routeNew/restaurant/cancellationPolicy')(app);
+require('./routeNew/restaurant/Kitchen')(app);
 
 
 

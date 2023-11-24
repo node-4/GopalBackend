@@ -1,7 +1,3 @@
-const handleResponse = (res, status, message, data) => {
-  return res.status(status).json({ status, message, data });
-};
-
 const cancellation = require("../../model/cancellationPolicy");
 
 exports.createCancellationPolicy = async (req, res, next) => {
@@ -9,27 +5,27 @@ exports.createCancellationPolicy = async (req, res, next) => {
     console.log("hit create CancellationPolicy ");
     const { msg } = req.body;
     const msgData = await cancellation.create({ msg: msg });
-    if (!msgData) return handleResponse(res, 400, "Cannot create new msg", null);
+    if (!msgData) return res.status(400).json({ status: 400, message: "Cannot create new msg", data: null });
 
-    return handleResponse(res, 200, "Cancellation policy created", msgData);
+    return res.status(200).json({ status: 200, message: "Cancellation policy created", data: msgData });
   } catch (error) {
     console.log(error);
-    return handleResponse(res, 500, error.message, null);
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };
 
 exports.getCancellationPolicy = async (req, res, next) => {
   try {
     console.log("hit it ");
-    const requiredResults = await cancellation.findOne({_id: req.params.id,}).lean();
+    const requiredResults = await cancellation.findOne({ _id: req.params.id }).lean();
 
     if (!requiredResults)
-      return handleResponse(res, 200, "No cancellation policy found", null);
+      return res.status(200).json({ status: 200, message: "No cancellation policy found", data: null });
 
-    return handleResponse(res, 200, "Success", { requiredResults });
+    return res.status(200).json({ status: 200, message: "Success", data: requiredResults });
   } catch (error) {
     console.log(error);
-    return handleResponse(res, 500, error.message, null);
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };
 
@@ -39,12 +35,12 @@ exports.getAllCancellationPolicy = async (req, res, next) => {
     const requiredResults = await cancellation.find().lean();
 
     if (requiredResults.length === 0)
-      return handleResponse(res, 200, "No cancellation policy found", null);
+      return res.status(200).json({ status: 200, message: "No cancellation policy found", data: null });
 
-    return handleResponse(res, 200, "Success", { requiredResults });
+    return res.status(200).json({ status: 200, message: "Success", data: requiredResults });
   } catch (error) {
     console.log(error);
-    return handleResponse(res, 500, error.message, null);
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };
 
@@ -54,11 +50,11 @@ exports.deleteCancellationPolicyById = async (req, res, next) => {
     const { id } = req.params;
     const deletedPolicy = await cancellation.findOneAndDelete({ _id: id });
     if (!deletedPolicy)
-      return handleResponse(res, 400, "Cannot delete the policy", null);
+      return res.status(400).json({ status: 400, message: "Cannot delete the policy", data: null });
 
-    return handleResponse(res, 200, "Policy deleted successfully", null);
+    return res.status(200).json({ status: 200, message: "Policy deleted successfully", data: null });
   } catch (error) {
     console.log(error);
-    return handleResponse(res, 500, error.message, null);
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };
