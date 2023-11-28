@@ -25,6 +25,10 @@ const dishSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Restaurant',
     },
+    dishIsOfKitchen: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Kitchen',
+    },
     currency: {
         type: String,
         default: 'INR',

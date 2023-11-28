@@ -18,6 +18,17 @@ module.exports = (app) => {
         app.post('/api/kitchen/uploadImage', auth.kitchenAuthMiddleware, upload.array('image'), controller.uploadDailyImageInKitchen);
         app.get('/api/kitchen/allDailyImageInKitchen', auth.kitchenAuthMiddleware, controller.allDailyImageInKitchen);
         app.get('/api/Kitchen/allDailyImageInKitchenbyDate/:kitchenId/:date', controller.allDailyImageInKitchenbyDate);
-
+        app.post('/api/kitchen-subscriptions', auth.kitchenAuthMiddleware, controller.createKitchenSubscription);
+        app.get('/api/kitchen-subscriptions/All', auth.kitchenAuthMiddleware, controller.getAllKitchenSubscription);
+        app.get('/api/kitchen-subscriptions/:id', controller.getKitchenSubscriptionById);
+        app.put('/api/kitchen-subscriptions/:id', auth.kitchenAuthMiddleware, controller.updateKitchenSubscription);
+        app.delete('/api/kitchen-subscriptions/:id', auth.kitchenAuthMiddleware, controller.deleteKitchenSubscription);
+        app.get('/api/kitchen-subscriptions/kitchen/:kitchenId', controller.getAllKitchenSubscriptionbyKitchenId);
+        app.post('/api/Kitchen/createDishes', auth.kitchenAuthMiddleware, upload.single('image'), controller.createDish);
+        app.get('/api/Kitchen/getDishes', auth.kitchenAuthMiddleware, controller.getDish);
+        app.get('/api/Kitchen/getDishByIdOfKitchen/:id', controller.getDishByIdOfKitchen);
+        app.get('/api/Kitchen/getdishesByName/:dishName', controller.getdishesByName);
+        app.patch('/api/Kitchen/Dish/update/:id', auth.kitchenAuthMiddleware, upload.single('image'), controller.editDish);
+        app.get('/api/Kitchen/Dish/getDishByID/:id', controller.getDishByID);
+        app.delete('/api/Kitchen/Dish/deleteDish/:id', auth.kitchenAuthMiddleware, controller.deleteDish);
 };
-
