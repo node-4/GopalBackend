@@ -1,4 +1,4 @@
-const Admin = require("../../model/adminCreate");
+const Admin = require("../../modelNew/adminCreate");
 const { genToken } = require("../../middleware/jwt");
 exports.registerAdmin = async (req, res, next) => {
   try {

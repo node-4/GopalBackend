@@ -1,4 +1,4 @@
-const privacy = require('../../model/privacypolicy');
+const privacy = require('../../modelNew/privacypolicy');
 
 exports.create = async (req, res) => {
   try {

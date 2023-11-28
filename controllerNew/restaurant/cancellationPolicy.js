@@ -1,7 +1,7 @@
 const handleResponse = (res, status, message, data) => {
   return res.status(status).json({ status, message, data });
 };
-const Cancellation = require("../../model/cancellationPolicy");
+const Cancellation = require("../../modelNew/cancellationPolicy");
 exports.getCancellationPolicyByIdByRestaurant = async (req, res, next) => {
   try {
     console.log("hit it ");

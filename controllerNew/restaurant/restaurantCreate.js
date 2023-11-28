@@ -1,6 +1,6 @@
 const createError = require("http-errors");
 const bcrypt = require("bcryptjs");
-const Restaurant = require("../../model/restaurantCreate");
+const Restaurant = require("../../modelNew/restaurant/restaurantCreate");
 const { genToken } = require("../../middleware/jwt");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken")

@@ -1,4 +1,4 @@
-const cancellation = require("../../model/cancellationPolicy");
+const cancellation = require("../../modelNew/cancellationPolicy");
 
 exports.createCancellationPolicy = async (req, res, next) => {
   try {

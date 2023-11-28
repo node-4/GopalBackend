@@ -1,10 +1,10 @@
-const Kitchen = require("../../model/kitchen/kitchen");
-const kitchenDailyImage = require("../../model/kitchen/kitchenDailyImage");
-const KitchenSubscription = require('../../model/kitchen/kitchensubcription');
-const Dish = require("../../model/dishes");
+const Kitchen = require("../../modelNew/kitchen/kitchen");
+const kitchenDailyImage = require("../../modelNew/kitchen/kitchenDailyImage");
+const KitchenSubscription = require('../../modelNew/kitchen/kitchensubcription');
+const Dish = require("../../modelNew/kitchen/kitchenDishes");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken")
-// Create a new kitchen
+
 exports.createKitchen = async (req, res) => {
         try {
                 const { name, email, address, contact, lat, long, radius } = req.body;
@@ -234,7 +234,7 @@ exports.getAllKitchenSubscription = async (req, res) => {
 };
 exports.getKitchenSubscriptionById = async (req, res) => {
         try {
-                const subscription = await KitchenSubscription.findById(req.params.id);
+                const subscription = await KitchenSubscription.findById(req.params.id).populate('kitchenId dinner lunch breakfast');
                 if (!subscription) {
                         return res.status(404).json({ status: 404, msg: "Subscription not found" });
                 }
@@ -299,12 +299,8 @@ exports.createDish = async (req, res, next) => {
                         foodImg: req.body.foodImg,
                         dishName: req.body.dishName,
                         description: req.body.description,
-                        priceForSmallPortion: req.body.priceForSmallPortion,
-                        priceForMediumPortion: req.body.priceForMediumPortion,
-                        priceForLargePortion: req.body.priceForLargePortion,
                         dishIsOfKitchen: req.user,
                         currency: req.body.currency,
-                        numLikes: req.body.numLikes,
                         option: req.body.option,
                 });
                 if (!newDish) {
@@ -378,12 +374,8 @@ exports.editDish = async (req, res, next) => {
                                 foodImg: req.body.foodImg || restaurant.foodImg,
                                 dishName: req.body.dishName || restaurant.dishName,
                                 description: req.body.description || restaurant.description,
-                                priceForSmallPortion: req.body.priceForSmallPortion || restaurant.priceForSmallPortion,
-                                priceForMediumPortion: req.body.priceForMediumPortion || restaurant.priceForMediumPortion,
-                                priceForLargePortion: req.body.priceForLargePortion || restaurant.priceForLargePortion,
                                 dishIsOfKitchen: req.user || restaurant.dishIsOfKitchen,
                                 currency: req.body.currency || restaurant.currency,
-                                numLikes: req.body.numLikes || restaurant.numLikes,
                                 option: req.body.option || restaurant.option,
                         };
                         const updated = await Dish.findOneAndUpdate({ _id: restaurant._id }, { $set: data }, { new: true });
@@ -422,3 +414,37 @@ exports.deleteDish = async (req, res) => {
                 return res.status(500).json({ message: "internal server error", });
         }
 };
+exports.addDishtoSubscription = async (req, res) => {
+        try {
+                const { subscriptionId, mealType } = req.params;
+                const { dishId } = req.body;
+                const subscription = await KitchenSubscription.findById(subscriptionId);
+                if (!subscription) {
+                        return res.status(404).json({ message: "Subscription not found" });
+                }
+                subscription[mealType].push(dishId);
+                await subscription.save();
+                return res.status(200).json({ message: "Dish added successfully", subscription });
+        } catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: "Internal server error" });
+        }
+}
+exports.removeDishtoSubscription = async (req, res) => {
+        try {
+                const { subscriptionId, mealType } = req.params;
+                const { dishId } = req.body;
+                const subscription = await KitchenSubscription.findById(subscriptionId);
+                if (!subscription) {
+                        return res.status(404).json({ message: "Subscription not found" });
+                }
+                subscription[mealType] = subscription[mealType].filter(
+                        (id) => id.toString() !== dishId
+                );
+                await subscription.save();
+                return res.status(200).json({ message: "Dish removed successfully", subscription });
+        } catch (error) {
+                console.error(error);
+               return res.status(500).json({ message: "Internal server error" });
+        }
+}

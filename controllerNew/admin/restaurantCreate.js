@@ -1,5 +1,5 @@
 const createError = require("http-errors");
-const restaurantSchema = require("../../model/restaurantCreate");
+const restaurantSchema = require("../../modelNew/restaurant/restaurantCreate");
 const { genToken } = require("../../middleware/jwt");
 const bcrypt = require("bcryptjs");
 

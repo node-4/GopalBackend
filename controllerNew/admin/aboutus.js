@@ -1,4 +1,4 @@
-const Aboutus = require('../../model/aboutus');
+const Aboutus = require('../../modelNew/aboutus');
 
 // Create a new About us
 exports.createPrivacyPolicy = async (req, res) => {

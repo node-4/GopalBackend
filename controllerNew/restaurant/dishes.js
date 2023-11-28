@@ -1,4 +1,4 @@
-const Dish = require("../../model/dishes");
+const Dish = require("../../modelNew/restaurant/dishes");
 
 exports.createDish = async (req, res, next) => {
   try {

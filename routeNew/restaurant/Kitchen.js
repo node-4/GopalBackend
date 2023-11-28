@@ -31,4 +31,6 @@ module.exports = (app) => {
         app.patch('/api/Kitchen/Dish/update/:id', auth.kitchenAuthMiddleware, upload.single('image'), controller.editDish);
         app.get('/api/Kitchen/Dish/getDishByID/:id', controller.getDishByID);
         app.delete('/api/Kitchen/Dish/deleteDish/:id', auth.kitchenAuthMiddleware, controller.deleteDish);
+        app.post("/api/addDish/:mealType/:subscriptionId", auth.kitchenAuthMiddleware, controller.addDishtoSubscription);
+        app.post("/api/removeDish/:mealType/:subscriptionId", auth.kitchenAuthMiddleware, controller.removeDishtoSubscription);
 };

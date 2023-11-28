@@ -1,10 +1,10 @@
 
 const jwt = require('jsonwebtoken');
 const createError = require('http-errors');
-const User = require('../model/userCreate');
-const Restaurant = require('../model/restaurantCreate');
-const Admin = require('../model/adminCreate');
-const kitchen = require('../model/kitchen/kitchen');
+const User = require('../modelNew/userCreate');
+const Restaurant = require('../modelNew/restaurant/restaurantCreate');
+const Admin = require('../modelNew/adminCreate');
+const kitchen = require('../modelNew/kitchen/kitchen');
 
 exports.genToken = async (userId) => {
     try {
