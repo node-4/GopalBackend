@@ -204,15 +204,40 @@ exports.allDailyImageInKitchenbyDate = async (req, res, next) => {
 };
 exports.createKitchenSubscription = async (req, res) => {
         try {
-                const { plan, price, month } = req.body;
-                if (!month || !plan || !price) {
+                const { type, price, month, } = req.body;
+                if (!month || !type || !price) {
                         return res.status(400).send({ status: 400, msg: "Please provide month, plan, and price" });
                 }
-                const subscriptions = await KitchenSubscription.findOne({ kitchenId: req.user, plan });
+                const subscriptions = await KitchenSubscription.findOne({ kitchenId: req.user, type });
                 if (subscriptions) {
                         return res.status(400).send({ status: 400, msg: "Subscription already exists" });
                 }
-                const subscription = new KitchenSubscription({ kitchenId: req.user, plan, price, month: month || 0, });
+                let plan, breakfastTiming, lunchTiming, dinnerTiming;
+                if (type == "BLD") {
+                        plan = "Break + Lunch + Dinner";
+                        breakfastTiming = "Morning 9 am";
+                        lunchTiming = "Morning 9 am";
+                        dinnerTiming = "8 pm";
+                }
+                if (type == "LD") {
+                        plan = "Lunch + Dinner";
+                        breakfastTiming = null;
+                        lunchTiming = "Morning 9 am";
+                        dinnerTiming = "8 pm";
+                }
+                if (type == "L") {
+                        plan = "Only Lunch";
+                        breakfastTiming = null;
+                        lunchTiming = "Morning 9 am";
+                        dinnerTiming = null;
+                }
+                if (type == "D") {
+                        plan = "Only Dinner";
+                        breakfastTiming = null;
+                        lunchTiming = null;
+                        dinnerTiming = "8 pm";
+                }
+                const subscription = new KitchenSubscription({ kitchenId: req.user, type, breakfastTiming, lunchTiming, dinnerTiming, plan, price, month: month, });
                 const result = await subscription.save();
                 return res.status(200).json({ status: 200, msg: "Subscription created successfully", data: result });
         } catch (error) {
@@ -445,6 +470,6 @@ exports.removeDishtoSubscription = async (req, res) => {
                 return res.status(200).json({ message: "Dish removed successfully", subscription });
         } catch (error) {
                 console.error(error);
-               return res.status(500).json({ message: "Internal server error" });
+                return res.status(500).json({ message: "Internal server error" });
         }
 }

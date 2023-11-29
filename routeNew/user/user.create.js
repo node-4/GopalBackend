@@ -19,5 +19,9 @@ module.exports = (app) => {
         app.get("/api/users/getAllrestaurant", auth.userAuthMiddleware, controller.getAllrestaurant)
         app.get("/api/users/getAllHomeCarriageRestaurant", auth.userAuthMiddleware, controller.getAllHomeCarriageRestaurant);
         app.get("/api/users/getAllCateringServicesRestaurant", auth.userAuthMiddleware, controller.getAllCateringServicesRestaurant);
+        app.post('/api/users/subscribe', auth.userAuthMiddleware, controller.subscribe);
+        app.post('/api/users/unsubscribe', auth.userAuthMiddleware, controller.unsubscribe);
+        app.put('/api/users/verifyPayment/:id', auth.userAuthMiddleware, controller.verifyPayment);
+        app.get('/api/users/mySubscribedPlans', auth.userAuthMiddleware, controller.mySubscribedPlans);
 }
 

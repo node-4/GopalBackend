@@ -9,6 +9,7 @@ const kitchenDailyImage = require("../../modelNew/kitchen/kitchenDailyImage");
 const KitchenSubscription = require('../../modelNew/kitchen/kitchensubcription');
 const kitchenDishes = require("../../modelNew/kitchen/kitchenDishes");
 const Dish = require("../../modelNew/restaurant/dishes");
+const userKitchensubcription = require('../../modelNew/kitchen/userKitchensubcription');
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
 
@@ -285,5 +286,85 @@ exports.getAllCateringServicesRestaurant = async (req, res, next) => {
         } catch (error) {
                 console.log(error);
                 return res.status(500).json({ errorname: error.name, message: error.message, });
+        }
+};
+exports.subscribe = async (req, res) => {
+        try {
+                const existingSubscription = await userKitchensubcription.findOne({ user: req.user, kitchensubcriptionId: req.body.subscriptionId, paymentStatus: 'Paid', expired: false });
+                if (existingSubscription) {
+                        return res.status(400).json({ message: 'User is already subscribed.' });
+                }
+                const newSubscription = new userKitchensubcription({ kitchensubcriptionId: req.body.subscriptionId, user: req.user });
+                await newSubscription.save();
+                return res.status(201).json({ message: 'Subscription successful.', data: newSubscription });
+        } catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Internal Server Error' });
+        }
+};
+exports.unsubscribe = async (req, res) => {
+        try {
+                const findUserSubscription = await userKitchensubcription.findOneAndUpdate({ user: req.user, kitchensubcriptionId: req.body.subscriptionId }, { $set: { expired: true, expiredTime: new Date() } }, { new: true });
+                if (!findUserSubscription) {
+                        return res.status(404).json({ status: 404, message: 'User subscription not found.' });
+                }
+                const findSubscription = await KitchenSubscription.findById(findUserSubscription.kitchensubcriptionId);
+                if (!findSubscription) {
+                        return res.status(404).json({ status: 404, message: 'Subscription not found.' });
+                }
+                const isUserAlreadySubscribed = findSubscription.user.includes(req.user);
+                if (isUserAlreadySubscribed) {
+                        const updatedSubscription = await KitchenSubscription.findByIdAndUpdate(findUserSubscription.kitchensubcriptionId, { $inc: { noOfuser: -1 }, $pull: { user: req.user } }, { new: true });
+                        return res.status(200).json({ message: 'Unsubscription successful.', data: updatedSubscription });
+                } else {
+                        return res.status(200).json({ message: 'Unsubscription successful.', data: findSubscription });
+                }
+        } catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Internal Server Error' });
+        }
+};
+exports.verifyPayment = async (req, res) => {
+        try {
+                const findUserSubscription = await userKitchensubcription.findById(req.params.id);
+                if (!findUserSubscription) {
+                        return res.status(404).json({ status: 404, message: "Subscription not found." });
+                }
+                if (req.body.paymentStatus === "Paid") {
+                        const findSubscription = await KitchenSubscription.findById(findUserSubscription.kitchensubcriptionId);
+                        if (findSubscription) {
+                                console.log(findSubscription);
+                                const expirationTime = new Date() * findSubscription.month;
+                                let update = await userKitchensubcription.findByIdAndUpdate({ _id: findUserSubscription._id }, { $set: { expired: false, expiredTime: expirationTime, paymentStatus: req.body.paymentStatus } }, { new: true });
+                                const isUserAlreadySubscribed = findSubscription.user.includes(findUserSubscription.user);
+
+                                if (!isUserAlreadySubscribed) {
+                                        let update1 = await KitchenSubscription.findByIdAndUpdate({ _id: findSubscription._id }, { $inc: { noOfuser: 1 }, $push: { user: findUserSubscription.user } }, { new: true });
+                                        return res.status(200).json({ message: 'Payment success.', data: { update, update1 } });
+                                } else {
+                                        return res.status(200).json({ message: 'Payment success.', data: { update } });
+                                }
+                        }
+                } else if (req.body.paymentStatus === "Failed") {
+                        await userKitchensubcription.findByIdAndDelete({ _id: req.params.id });
+                        return res.status(200).json({ message: 'Payment failed.', data: {} });
+                } else {
+                        return res.status(400).json({ message: 'Invalid payment status.' });
+                }
+        } catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Internal Server Error' });
+        }
+};
+exports.mySubscribedPlans = async (req, res) => {
+        try {
+                const existingSubscription = await userKitchensubcription.find({ user: req.user,expired: false}).populate('kitchensubcriptionId');
+                if (existingSubscription.length ==0) {
+                        return res.status(404).json({ status: 404, message: 'User have no subscription.' });
+                }
+                return res.status(200).json({ status: 200, message: 'User subscription found.' , data: existingSubscription });
+        } catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Internal Server Error' });
         }
 };

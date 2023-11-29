@@ -37,10 +37,6 @@ const userSchema = new mongoose.Schema({
         type: locationSchema
     },
     google_id: { type: String },
-    kitchensubcriptionId: [{
-        type: mongoose.Schema.ObjectId,
-        ref: "kitchensubcription"
-    }],
 }, {
     timestamps: true
 });

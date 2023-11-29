@@ -14,7 +14,7 @@ const restaurantSchema = new mongoose.Schema(
                         enum: ["BLD", "LD", "L", "D"]
                 },
                 price: {
-                        type: String,
+                        type: Number,
                 },
                 breakfastTiming: {
                         type: String,
