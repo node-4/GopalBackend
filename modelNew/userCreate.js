@@ -24,24 +24,24 @@ const userSchema = new mongoose.Schema({
         trim: true,
         default: ''
     },
-    profileImage:{
+    profileImage: {
         type: String,
-         default:"https://www.youtube.com/results?search_query=dubay+pathway+",
+        default: "",
     },
     role: {
         type: String,
         default: 'user',
         enum: ['user']
     },
-    currentLocation:{
+    currentLocation: {
         type: locationSchema
     },
-    google_id:{type: String},
+    google_id: { type: String },
     kitchensubcriptionId: [{
         type: mongoose.Schema.ObjectId,
         ref: "kitchensubcription"
-}],
-},{
+    }],
+}, {
     timestamps: true
 });
 

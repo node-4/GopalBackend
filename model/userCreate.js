@@ -4,7 +4,7 @@ const locationSchema = require('./locationModel');
 const userSchema = new mongoose.Schema({
     mobile: {
         type: String,
-       // required: true,
+        // required: true,
         trim: true,
         unique: true
         /// a string containing mobile number the country code will be pepended to it automatically default (+91) refer to (/middlewares/twilioSms.js)
@@ -26,20 +26,20 @@ const userSchema = new mongoose.Schema({
         trim: true,
         default: ''
     },
-    profileImage:{
+    profileImage: {
         type: String,
-         default:"https://www.youtube.com/results?search_query=dubay+pathway+",
+        default: "https://www.youtube.com/results?search_query=dubay+pathway+",
     },
     role: {
         type: String,
         default: 'user',
         enum: ['user']
     },
-    currentLocation:{
+    currentLocation: {
         type: locationSchema
     },
-    google_id:{type: String},
-},{
+    google_id: { type: String },
+}, {
     timestamps: true
 });
 

@@ -46,6 +46,8 @@ require('./routeNew/restaurant/restaurantCreate')(app);
 require('./routeNew/restaurant/dishes')(app);
 require('./routeNew/restaurant/cancellationPolicy')(app);
 require('./routeNew/restaurant/Kitchen')(app);
+// restaurant routes use
+require('./routeNew/user/user.create')(app);
 
 
 

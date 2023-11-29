@@ -9,7 +9,20 @@ const restaurantSchema = new mongoose.Schema(
                 plan: {
                         type: String,
                 },
+                type: {
+                        type: String,
+                        enum: ["BLD", "LD", "L", "D"]
+                },
                 price: {
+                        type: String,
+                },
+                breakfastTiming: {
+                        type: String,
+                },
+                lunchTiming: {
+                        type: String,
+                },
+                dinnerTiming: {
                         type: String,
                 },
                 month: {
@@ -36,6 +49,7 @@ const restaurantSchema = new mongoose.Schema(
                         type: objectid,
                         ref: "User"
                 }],
+
         }, { timestamps: true, }
 );
 module.exports = mongoose.model("kitchensubcription", restaurantSchema);
