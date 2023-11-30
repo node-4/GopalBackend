@@ -23,24 +23,24 @@ exports.signUp = async (req, res) => {
         try {
                 const userdata = await User.findOne({ mobile: req.body.mobile });
                 if (!userdata) {
-                        const data = { mobile: req.body.mobile, name: req.body.name, address: req.body.address, pincode: req.body.pincode };
+                        const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false, });
+                        let password = bcrypt.hashSync(req.body.password, 8);
+                        const data = { mobile: req.body.mobile, name: req.body.name, address: req.body.address, pincode: req.body.pincode, otp: otp, password: password };
                         const user = await User.create(data);
                         if (user) {
-                                const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false, });
-                                const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
-                                if (requiredOtp) {
-                                        let password = bcrypt.hashSync(req.body.password, 8);
-                                        const otpToUpdate = await Otp.findByIdAndUpdate({ _id: requiredOtp._id }, { $set: { otp: otp, password: password } }, { new: true });
-                                        if (otpToUpdate) {
-                                                return res.status(200).json({ status: 200, msg: "signUp  successfully", data: user });
-                                        }
-                                } else {
-                                        let password = bcrypt.hashSync(req.body.password, 8);
-                                        const otpToSend = await Otp.create({ mobile: req.body.mobile, otp: otp, password: password, });
-                                        if (otpToSend) {
-                                                return res.status(200).json({ status: 200, msg: "signUp  successfully", data: user });
-                                        }
-                                }
+                                // const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
+                                // if (requiredOtp) {
+                                //         const otpToUpdate = await Otp.findByIdAndUpdate({ _id: requiredOtp._id }, { $set: { otp: otp, password: password } }, { new: true });
+                                //         if (otpToUpdate) {
+                                //                 return res.status(200).json({ status: 200, msg: "signUp  successfully", data: user });
+                                //         }
+                                // } else {
+                                //         let password = bcrypt.hashSync(req.body.password, 8);
+                                //         const otpToSend = await Otp.create({ mobile: req.body.mobile, otp: otp, password: password, });
+                                //         if (otpToSend) {
+                                return res.status(200).json({ status: 200, msg: "signUp  successfully", data: user });
+                                // }
+                                // }
                         }
                 } else {
                         return res.status(409).send({ status: 409, msg: "User already exit" });
@@ -61,15 +61,15 @@ exports.signIn = async (req, res) => {
                 if (!admin) {
                         return res.status(400).send({ message: "Failed! User passed doesn't exist" });
                 }
-                const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
-                if (requiredOtp) {
-                        const passwordIsValid = bcrypt.compareSync(req.body.password, requiredOtp.password);
-                        if (!passwordIsValid) {
-                                return res.status(401).send({ message: "Wrong password" });
-                        }
-                        const accessToken1 = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
-                        return res.status(200).send({ msg: "User logged in successfully", accessToken: accessToken1, });
+                // const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
+                // if (requiredOtp) {
+                const passwordIsValid = bcrypt.compareSync(req.body.password, admin.password);
+                if (!passwordIsValid) {
+                        return res.status(401).send({ message: "Wrong password" });
                 }
+                const accessToken1 = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
+                return res.status(200).send({ msg: "User logged in successfully", accessToken: accessToken1, });
+                // }
         } catch (err) {
                 console.log(err);
                 return res.status(500).send({ message: "Internal server error while User signing in", });

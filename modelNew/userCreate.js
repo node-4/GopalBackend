@@ -36,6 +36,13 @@ const userSchema = new mongoose.Schema({
     currentLocation: {
         type: locationSchema
     },
+    otp: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String
+    },
     google_id: { type: String },
 }, {
     timestamps: true

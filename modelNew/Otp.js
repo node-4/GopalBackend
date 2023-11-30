@@ -18,11 +18,8 @@ const otpSchema = new mongoose.Schema({
         default: 'login',
         enum: ['login']
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    }
-
+}, {
+    timestamps: true
 })
 
 
