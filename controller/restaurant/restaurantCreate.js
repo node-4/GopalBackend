@@ -1,8 +1,10 @@
 const createError = require("http-errors");
 const bcrypt = require("bcryptjs");
-const Restaurant = require("../../model/restaurantCreate");
+const Restaurant = require("../../model/restaurant/restaurantCreate");
 const { genToken } = require("../../middleware/jwt");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken")
+const orderModel = require("../../model/orderModel");
 exports.registerRestaurant = async (req, res, next) => {
   try {
     const { name, email, address, tagline, contact, profile, role, option, } = req.body;
@@ -10,127 +12,102 @@ exports.registerRestaurant = async (req, res, next) => {
     if (!userdata) {
       let password = bcrypt.hashSync(req.body.password, 8);
       const newRestaurant = await Restaurant.create({ name, email, password, address, tagline, contact, profile, role, option, });
-      if (!newRestaurant) return next(createError(400, "restaurant not added"));
-      const token = await genToken({ id: newRestaurant._id, role: newRestaurant.role, });
-      if (!token) return next(createError(400, "cannot generate the token"));
-      return res.status(200).json({ token, newRestaurant, });
+      if (!newRestaurant) {
+        return res.status(400).send({ status: 400, msg: "restaurant not added" });
+      } else {
+        const accessToken1 = jwt.sign({ id: newRestaurant._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
+        if (!accessToken1) {
+          return res.status(400).send({ status: 400, message: "cannot generate the token" });
+        }
+        return res.status(200).send({ status: 200, message: "restaurant create  successfully ", data: { newRestaurant, accessToken1 } });
+      }
     } else {
-      return res.status(400).send({ msg: "restaurant already exit" });
+      return res.status(400).send({ status: 400, msg: "restaurant already exit" });
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ errorname: error.name, message: error.message, });
+    return res.status(500).send({ status: 500, message: "Server error" + error.message });
   }
 };
-
-exports.restaurantLogin = async (req, res, next) => {
+exports.restaurantLogin = async (req, res) => {
   try {
-    console.log("hit restaurant login");
-    const { email, password } = req.body;
-    if (!email || !password)
-      return next(createError(400, "please provide email and password"));
-    const restaurant = await Restaurant.findOne({ email: email }).select("+password");
-    if (!restaurant)
-      return next(createError(400, "No restaurant exists with the provided email"));
-    if (!(await restaurant.checkPassword(password, restaurant.password)))
-      return next(createError(400, "Incorrect email or password"));
-    const token = await genToken({ id: restaurant._id, role: restaurant.role });
-    if (!token) return next(createError(400, "cannot generate the token"));
-    res.setHeader("Authorization", "Bearer " + token);
-    return res.status(200).json({ tokrn: token, r: restaurant._id });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ errorname: error.name, message: error.message, });
+    if (!req.body.email) {
+      return res.status(400).send({ status: 400, message: "email is required" });
+    }
+    if (!req.body.password) {
+      return res.status(400).send({ status: 400, message: "password is required" });
+    }
+    const admin = await Restaurant.findOne({ email: req.body.email });
+    if (!admin) {
+      return res.status(400).send({ status: 400, message: "Failed! restaurant passed doesn't exist" });
+    }
+    const passwordIsValid = bcrypt.compare(req.body.password, admin.password);
+    if (!passwordIsValid) {
+      return res.status(401).send({ status: 401, message: "Wrong password" });
+    }
+    const accessToken1 = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
+    return res.status(200).send({ status: 200, msg: "restaurant logged in successfully", accessToken: accessToken1, });
+
+  } catch (err) {
+    return res.status(500).send({ status: 500, message: "Internal server error while restaurant signing in", });
   }
 };
-
 exports.updateLocation = async (req, res, next) => {
   try {
-    console.log("hit upload location of restaurant");
+    console.log('hit upload location of restaurant');
     const { latLng } = req.body;
-    const updatedRestaurant = await Restaurant.findByIdAndUpdate(req.user, { location: { type: "Point", coordinates: latLng, }, }, { new: true });
-    if (!updatedRestaurant)
-      return next(createError(400, "cannot add the location"));
-    return res.status(200).json({ updatedRestaurant });
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(req.user, { $set: { location: { type: 'Point', coordinates: latLng } } }, { new: true });
+    if (!updatedRestaurant) {
+      return res.status(400).send({ status: 400, msg: "cannot add the location" });
+    } else {
+      return res.status(200).send({ status: 200, message: "Location add  successfully ", data: updatedRestaurant });
+    }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ errorname: error.name, message: error.message, });
+    return res.status(500).send({ status: 500, message: "Server error" + error.message });
   }
-};
-
-exports.updateSubscription = async (req, res, next) => {
-  try {
-    console.log("hit upload location of restaurant");
-    const { Plantype, typeOfPlate, plan } = req.body;
-    const updatedRestaurant = await Restaurant.findByIdAndUpdate(req.user, { subscription: { Plantype: Plantype, plan: plan, typeOfPlate: typeOfPlate }, }, { new: true });
-    if (!updatedRestaurant)
-      return next(createError(400, "cannot add the location"));
-    return res.status(200).send({ updatedRestaurant });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ errorname: error.name, message: error.message, });
-  }
-};
-
+}
 exports.me = async (req, res, next) => {
   try {
-    console.log("hit get current restaurant");
     const restaurant = await Restaurant.findById(req.user);
-    return res.status(200).json({ restaurant });
+    if (!restaurant) {
+      return res.status(400).send({ status: 400, msg: "Restaurant not found" });
+    } else {
+      return res.status(200).send({ status: 200, message: "Restaurant found  successfully ", data: restaurant });
+    }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ errorname: error.name, message: error.message, });
+    return res.status(500).send({ status: 500, message: "Server error" + error.message });
   }
-};
-
-exports.getAllrestaurant = async (req, res, next) => {
-  try {
-    console.log("hit get current restaurant");
-    const restaurant = await Restaurant.find();
-    return res.status(200).json({ restaurant });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ errorname: error.name, message: error.message, });
-  }
-};
-
+}
 exports.updateMeRestaurant = async (req, res, next) => {
   try {
-    console.log("hit restaurant update profile (updateMeRestaurant)");
-
-    const { name, email, address, tagline, contact, profile, restaurantMenu } =
-      req.body;
-
-    // const { profile, menu } = req.files;
-
-    // if (!profile || !menu) return next(createError(400, 'please provide profile and the menu image'));
-
-    // const profilePath = `${profile[0].destination}/${profile[0].filename}`;
-    // const menuPath = `${menu[0].destination}/${menu[0].filename}`;
-
-    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
-      req.user,
-      {
-        name,
-        email,
-        address,
-        contact,
-        tagline,
-        profile,
-        restaurantMenu /* profile: profilePath, restaurantMenu: menuPath*/,
-      },
-      { new: true }
-    );
-
-    if (!updatedRestaurant)
-      return next(createError(400, "cannot update the data of restaurant"));
-
-    return res.status(200).json({ updatedRestaurant });
+    console.log('hit restaurant update profile (updateMeRestaurant)');
+    const { name, email, address, tagline, contact, profile, restaurantMenu } = req.body;
+    const restaurant1 = await Restaurant.findById(req.user);
+    if (!restaurant1) return next(createError(400, "cannot find the restaurant"));
+    const userdata = await Restaurant.findOne({ $and: [{ $or: [{ contact: contact }, { email: email }], role: restaurant1.role, _id: { $ne: restaurant1._id } }] });
+    if (userdata) {
+      return res.status(400).send({ msg: "restaurant already exit" });
+    }
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(req.user, { $set: { name, email, address, contact, tagline, profile, restaurantMenu/* profile: profilePath, restaurantMenu: menuPath*/ } }, { new: true });
+    if (!updatedRestaurant) {
+      return res.status(400).send({ status: 400, msg: "cannot update the data of restaurant" });
+    } else {
+      return res.status(200).send({ status: 200, message: "Restaurant update  successfully ", data: updatedRestaurant });
+    }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorname: error.name,
-      message: error.message,
-    });
+    return res.status(500).send({ status: 500, message: "Server error" + error.message });
+  }
+}
+exports.getOrders = async (req, res, next) => {
+  try {
+    const orders = await orderModel.find({ restaurantId: req.user, orderStatus: "confirmed" }).populate('restaurantId userId dishId');
+    if (orders.length == 0) {
+      return res.status(404).json({ status: 404, message: "Orders not found", data: {} });
+    }
+    return res.status(200).json({ status: 200, msg: "orders of user", data: orders })
+  } catch (error) {
+    console.log(error);
+    return res.status(501).send({ status: 501, message: "server error.", data: {}, });
   }
 };

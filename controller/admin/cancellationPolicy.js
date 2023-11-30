@@ -1,61 +1,33 @@
-const CreateError = require("http-errors");
-
-const cancellation  = require("../../model/cancellationPolicy");
-const token = require("../../middleware/jwt")
-const Notification = require("../../model/notification");
-const Restaurant = require("../../model/restaurantCreate");
+const cancellation = require("../../model/cancellationPolicy");
 
 exports.createCancellationPolicy = async (req, res, next) => {
   try {
     console.log("hit create CancellationPolicy ");
+    const { msg } = req.body;
+    const msgData = await cancellation.create({ msg: msg });
+    if (!msgData) return res.status(400).json({ status: 400, message: "Cannot create new msg", data: null });
 
-    const {msg} = req.body;
-   // const restaurant = Restaurant.findById(req.user);
-
-    const msgData = await cancellation.create({
-    msg:msg
-    });
-    console.log(msgData);
-
-    // const promiseArray = await Promise.all([restaurant, newCoupon])
-
-    // await Notification.create({
-    //     body: `use coupon code ${promiseArray[1].name} to avail a discount of ${promiseArray[1].discountPercent} at ${promiseArray[0].name}`,
-    //     isForAllUsers: true
-    // });
-
-    if (!msgData) return res.status(400).send({msg: "cannot create new msg"});
-
-    return res.status(200).send(msgData)
+    return res.status(200).json({ status: 200, message: "Cancellation policy created", data: msgData });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorName: error.name,
-      message: error.message,
-    });
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };
 
 exports.getCancellationPolicy = async (req, res, next) => {
   try {
     console.log("hit it ");
-    const requiredResults = await cancellation.find({
-    _id: req.params.id,
-    }).lean();
+    const requiredResults = await cancellation.findOne({ _id: req.params.id }).lean();
 
-    if (requiredResults.length === 0)
-      return res.status(200).json({ message: "no CancellationPolicy found" });
+    if (!requiredResults)
+      return res.status(200).json({ status: 200, message: "No cancellation policy found", data: null });
 
-    return res.status(200).json({ requiredResults });
+    return res.status(200).json({ status: 200, message: "Success", data: requiredResults });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorName: error.name,
-      message: error.message,
-    });
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };
-
 
 exports.getAllCancellationPolicy = async (req, res, next) => {
   try {
@@ -63,38 +35,26 @@ exports.getAllCancellationPolicy = async (req, res, next) => {
     const requiredResults = await cancellation.find().lean();
 
     if (requiredResults.length === 0)
-      return res.status(200).json({ message: "no CancellationPolicy found" });
+      return res.status(200).json({ status: 200, message: "No cancellation policy found", data: null });
 
-    return res.status(200).json({ requiredResults });
+    return res.status(200).json({ status: 200, message: "Success", data: requiredResults });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorName: error.name,
-      message: error.message,
-    });
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };
 
 exports.deleteCancellationPolicyById = async (req, res, next) => {
   try {
-    console.log("hit CancellationPolicy  by id");
-
+    console.log("hit CancellationPolicy by id");
     const { id } = req.params;
-
-    const deletedPolicy = await cancellation.findOneAndDelete({
-     // restaurantId: req.user,
-      _id: id,
-    });
-
+    const deletedPolicy = await cancellation.findOneAndDelete({ _id: id });
     if (!deletedPolicy)
-      return next(CreateError(400, "cannot delete the policy"));
+      return res.status(400).json({ status: 400, message: "Cannot delete the policy", data: null });
 
-    return res.status(200).json({ message: "Policy deleted successfully" });
+    return res.status(200).json({ status: 200, message: "Policy deleted successfully", data: null });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      errorName: error.name,
-      message: error.message,
-    });
+    return res.status(500).json({ status: 500, message: error.message, data: null });
   }
 };

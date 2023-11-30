@@ -1,69 +1,62 @@
-const PrivacyPolicy = require('../../model/aboutus');
+const Aboutus = require('../../model/aboutus');
 
-// Create a new privacy policy
+// Create a new About us
 exports.createPrivacyPolicy = async (req, res) => {
   try {
-    const newPrivacyPolicy = await PrivacyPolicy.create({privacypolicy:req.body.privacypolicy});
-    console.log("hi")
-    res.status(201).send(newPrivacyPolicy);
+    const newPrivacyPolicy = await Aboutus.create({ privacypolicy: req.body.privacypolicy });
+    return res.status(201).json({ status: 201, message: 'About us added', data: newPrivacyPolicy });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ status: 400, message: 'About us not added', data: err.message });
   }
 };
-
 // Get all privacy policies
 exports.getAllPrivacyPolicies = async (req, res) => {
   try {
-    const privacyPolicies = await PrivacyPolicy.find()
-   return res.status(200).send(privacyPolicies);
+    const privacyPolicies = await Aboutus.find();
+    return res.status(200).json({ status: 200, message: 'Success', data: privacyPolicies });
   } catch (err) {
-  return  res.status(500).send({ message: err.message })
+    return res.status(500).json({ status: 500, message: 'Internal Server Error', data: err.message });
   }
 };
-
-// Get a single privacy policy by ID
+// Get a single About us by ID
 exports.getPrivacyPolicyById = async (req, res) => {
   try {
-    const privacyPolicy = await PrivacyPolicy.findById(req.params.id);
+    const privacyPolicy = await Aboutus.findById(req.params.id);
     if (privacyPolicy) {
-      res.json(privacyPolicy);
+      return res.status(200).json({ status: 200, message: 'Success', data: privacyPolicy });
     } else {
-      res.status(404).json({ message: 'Privacy policy not found' });
+      return res.status(404).json({ status: 404, message: 'About us not found', data: null });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({ status: 500, message: 'Internal Server Error', data: err.message });
   }
 };
-
-// Update a privacy policy by ID
+// Update a About us by ID
 exports.updatePrivacyPolicy = async (req, res) => {
   try {
-    const privacyPolicy = await PrivacyPolicy.findById(req.params.id);
+    const privacyPolicy = await Aboutus.findById(req.params.id);
     if (privacyPolicy) {
       privacyPolicy.title = req.body.title;
       const updatedPrivacyPolicy = await privacyPolicy.save();
-      res.json(updatedPrivacyPolicy);
+      return res.status(200).json({ status: 200, message: 'About us updated', data: updatedPrivacyPolicy });
     } else {
-      res.status(404).json({ message: 'Privacy policy not found' });
+      return res.status(404).json({ status: 404, message: 'About us not found', data: null });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({ status: 500, message: 'Internal Server Error', data: err.message });
   }
 };
-
-// Delete a privacy policy by ID
+// Delete a About us by ID
 exports.deletePrivacyPolicy = async (req, res) => {
   try {
-    const privacyPolicy = await PrivacyPolicy.findById(req.params.id);
+    const privacyPolicy = await Aboutus.findById(req.params.id);
     if (privacyPolicy) {
       await privacyPolicy.remove();
-      res.json({ message: 'Privacy policy deleted' });
+      return res.status(200).json({ status: 200, message: 'About us deleted', data: null });
     } else {
-      res.status(404).json({ message: 'Privacy policy not found' });
+      return res.status(404).json({ status: 404, message: 'About us not found', data: null });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({ status: 500, message: 'Internal Server Error', data: err.message });
   }
 };
-
-

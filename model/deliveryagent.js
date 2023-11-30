@@ -4,11 +4,9 @@ const deliveryAgentSchema = new mongoose.Schema({
     restaurantId:{
         type: mongoose.Types.ObjectId,
         ref: 'Restaurant',
-      //  required: true
     },
     discountPercent : {
         type: Number,
-        //required: true,
         min: 0,
         max: 80
     },
