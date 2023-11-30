@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const dishSchema = new mongoose.Schema({
-    //// rating will be implemented after implementing order and ratings functionality
     foodImg: {
         type: String,
         default: "https://www.youtube.com/results?search_query=dubay+pathway+",

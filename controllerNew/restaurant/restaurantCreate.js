@@ -4,6 +4,7 @@ const Restaurant = require("../../modelNew/restaurant/restaurantCreate");
 const { genToken } = require("../../middleware/jwt");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken")
+const orderModel = require("../../modelNew/orderModel");
 exports.registerRestaurant = async (req, res, next) => {
   try {
     const { name, email, address, tagline, contact, profile, role, option, } = req.body;
@@ -98,3 +99,15 @@ exports.updateMeRestaurant = async (req, res, next) => {
     return res.status(500).send({ status: 500, message: "Server error" + error.message });
   }
 }
+exports.getOrders = async (req, res, next) => {
+  try {
+    const orders = await orderModel.find({ restaurantId: req.user, orderStatus: "confirmed" }).populate('restaurantId userId dishId');
+    if (orders.length == 0) {
+      return res.status(404).json({ status: 404, message: "Orders not found", data: {} });
+    }
+    return res.status(200).json({ status: 200, msg: "orders of user", data: orders })
+  } catch (error) {
+    console.log(error);
+    return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+  }
+};

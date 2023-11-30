@@ -10,6 +10,11 @@ const KitchenSubscription = require('../../modelNew/kitchen/kitchensubcription')
 const kitchenDishes = require("../../modelNew/kitchen/kitchenDishes");
 const Dish = require("../../modelNew/restaurant/dishes");
 const userKitchensubcription = require('../../modelNew/kitchen/userKitchensubcription');
+const Address = require("../../modelNew/addrees");
+const Cart = require("../../modelNew/cart");
+const orderModel = require("../../modelNew/orderModel");
+const userOrder = require("../../modelNew/userOrder");
+const transaction = require("../../modelNew/transactionModel");
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
 
@@ -86,7 +91,7 @@ exports.saveCurrentLocation = async (req, res, next) => {
                 return res.status(500).send({ message: "Internal server error while User update location", });
         }
 };
-exports.loginUserSendOtp = async (req, res /* next*/) => {
+exports.loginUserSendOtp = async (req, res) => {
         try {
                 const { mobile } = req.body;
                 const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false, });
@@ -254,6 +259,11 @@ exports.editCurrentUser = async (req, res, next) => {
 };
 exports.getAllrestaurant = async (req, res, next) => {
         try {
+                const userData = await User.findById(req.user);
+                if (!userData) {
+                        return res.status(400).send({ status: 400, msg: "User not found" });
+                }
+                console.log(userData);
                 const restaurant = await Restaurant.find({ role: "restaurant" });
                 if (restaurant.length == 0) {
                         return res.status(404).send({ status: 404, message: "restaurant not found ", data: {} });
@@ -358,13 +368,371 @@ exports.verifyPayment = async (req, res) => {
 };
 exports.mySubscribedPlans = async (req, res) => {
         try {
-                const existingSubscription = await userKitchensubcription.find({ user: req.user,expired: false}).populate('kitchensubcriptionId');
-                if (existingSubscription.length ==0) {
+                const existingSubscription = await userKitchensubcription.find({ user: req.user, expired: false }).populate('kitchensubcriptionId');
+                if (existingSubscription.length == 0) {
                         return res.status(404).json({ status: 404, message: 'User have no subscription.' });
                 }
-                return res.status(200).json({ status: 200, message: 'User subscription found.' , data: existingSubscription });
+                return res.status(200).json({ status: 200, message: 'User subscription found.', data: existingSubscription });
         } catch (error) {
                 console.error(error);
                 return res.status(500).json({ message: 'Internal Server Error' });
         }
 };
+exports.createAddress = async (req, res, next) => {
+        try {
+                const data = await User.findOne({ _id: req.user, });
+                if (data) {
+                        const data1 = await Address.findOne({ user: data._id, addressType: req.body.addressType });
+                        if (data1) {
+                                req.body.type = "User"
+                                const newAddressData = req.body;
+                                let update = await Address.findByIdAndUpdate(data1._id, newAddressData, { new: true, });
+                                return res.status(200).json({ status: 200, message: "Address update successfully.", data: update });
+                        } else {
+                                req.body.user = data._id;
+                                req.body.type = "User"
+                                const address = await Address.create(req.body);
+                                return res.status(200).json({ message: "Address create successfully.", data: address });
+                        }
+                } else {
+                        return res.status(404).json({ status: 404, message: "No data found", data: {} });
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+exports.getallAddress = async (req, res, next) => {
+        try {
+                const data = await User.findOne({ _id: req.user, });
+                if (data) {
+                        const allAddress = await Address.find({ user: data._id });
+                        return res.status(200).json({ message: "Address data found.", data: allAddress });
+                } else {
+                        return res.status(404).json({ status: 404, message: "No data found", data: {} });
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+exports.deleteAddress = async (req, res, next) => {
+        try {
+                const data = await User.findOne({ _id: req.user, });
+                if (data) {
+                        const data1 = await Address.findById({ _id: req.params.id });
+                        if (data1) {
+                                let update = await Address.findByIdAndDelete(data1._id);
+                                return res.status(200).json({ status: 200, message: "Address Deleted Successfully", });
+                        } else {
+                                return res.status(404).json({ status: 404, message: "No data found", data: {} });
+                        }
+                } else {
+                        return res.status(404).json({ status: 404, message: "No data found", data: {} });
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+exports.getAddressbyId = async (req, res, next) => {
+        try {
+                const data = await User.findOne({ _id: req.user, });
+                if (data) {
+                        const data1 = await Address.findById({ _id: req.params.id });
+                        if (data1) {
+                                return res.status(200).json({ status: 200, message: "Address found successfully.", data: data1 });
+                        } else {
+                                return res.status(404).json({ status: 404, message: "No data found", data: {} });
+                        }
+                } else {
+                        return res.status(404).json({ status: 404, message: "No data found", data: {} });
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+exports.addToCart = async (req, res, next) => {
+        try {
+                const { dishId, numPortions, size } = req.body;
+                const dish = await Dish.findById(dishId);
+                if (!dish) {
+                        return res.status(404).json({ status: 404, message: "Dish not found", data: {} });
+                }
+                let price;
+                if (size === "small") {
+                        price = dish.priceForSmallPortion;
+                } else if (size === "medium") {
+                        price = dish.priceForMediumPortion;
+                } else if (size === "large") {
+                        price = dish.priceForLargePortion;
+                }
+                const cart = await Cart.findOne({ user: req.user });
+                if (!cart) {
+                        const newCart = await Cart.create({ user: req.user, items: [{ dishId, numPortions, size, totalPrice: price * numPortions }] });
+                        return res.status(200).json({ status: 200, message: "Dish added to cart successfully.", data: newCart });
+                }
+                const cartItemIndex = cart.items.findIndex(item => item.dishId.toString() === dishId && item.size === size);
+                if (cartItemIndex !== -1) {
+                        cart.items[cartItemIndex].numPortions += numPortions;
+                        cart.items[cartItemIndex].totalPrice = price * cart.items[cartItemIndex].numPortions;
+                } else {
+                        cart.items.push({ dishId, numPortions, size, totalPrice: price * numPortions });
+                }
+                await cart.save();
+                return res.status(200).json({ status: 200, message: "Dish added to cart successfully.", data: cart });
+        } catch (error) {
+                console.log(error);
+                return res.status(500).send({ status: 500, message: "Server error.", data: {} });
+        }
+};
+exports.getCart = async (req, res, next) => {
+        try {
+                const cart = await Cart.findOne({ user: req.user }).populate('items.dishId');
+                if (!cart) {
+                        return res.status(404).json({ status: 404, message: "Cart not found", data: {} });
+                }
+                const itemsWithTax = cart.items.map(item => {
+                        const sgstPercentage = 0.1;
+                        const cgstPercentage = 0.1;
+                        const sgst = item.totalPrice * sgstPercentage;
+                        const cgst = item.totalPrice * cgstPercentage;
+                        return {
+                                ...item.toObject(),
+                                sgst,
+                                cgst
+                        };
+                });
+                const subtotal = itemsWithTax.reduce((acc, item) => acc + item.totalPrice, 0);
+                const sgst = itemsWithTax.reduce((acc, item) => acc + item.sgst, 0);
+                const cgst = itemsWithTax.reduce((acc, item) => acc + item.cgst, 0);
+                const deliveryCharge = 5;
+                const total = subtotal + sgst + cgst + deliveryCharge;
+                return res.status(200).json({
+                        status: 200,
+                        message: "Cart retrieved successfully.",
+                        cart: itemsWithTax,
+                        subtotal,
+                        sgst,
+                        cgst,
+                        deliveryCharge,
+                        total
+                });
+        } catch (error) {
+                console.error(error);
+                return res.status(500).json({ status: 500, message: "Server error.", data: {} });
+        }
+};
+exports.checkout = async (req, res) => {
+        try {
+                let existingOrders = await orderModel.find({ user: req.user._id, orderStatus: "unconfirmed" });
+                if (existingOrders.length > 0) {
+                        for (let i = 0; i < existingOrders.length; i++) {
+                                await userOrder.findOneAndDelete({ orderId: existingOrders[i].orderId });
+                                let nestedOrders = await orderModel.find({ orderId: existingOrders[i].orderId });
+                                if (nestedOrders.length > 0) {
+                                        for (let j = 0; j < nestedOrders.length; j++) {
+                                                await orderModel.findByIdAndDelete({ _id: nestedOrders[j]._id });
+                                        }
+                                }
+                        }
+                        const findCart = await Cart.findOne({ user: req.user }).populate('items.dishId');
+                        if (findCart) {
+                                let grandtotal = 0, grandcgst = 0, grandsgst = 0, grandsubTotal = 0;
+                                let orderId = await reffralCode();
+                                for (let i = 0; i < findCart.items.length; i++) {
+                                        console.log(findCart.items[i].dishId);
+                                        const sgstPercentage = 0.1;
+                                        const cgstPercentage = 0.1;
+                                        const sgst = findCart.items[i].totalPrice * sgstPercentage;
+                                        const cgst = findCart.items[i].totalPrice * cgstPercentage;
+                                        grandcgst += cgst;
+                                        grandsgst += sgst;
+                                        grandsubTotal = findCart.items[i].totalPrice;
+                                        grandtotal += findCart.items[i].totalPrice + cgst + sgst;
+                                        let orderData = {
+                                                orderId,
+                                                userId: findCart.user,
+                                                dishId: findCart.items[i].dishId,
+                                                restaurantId: findCart.items[i].dishId.dishIsOfRestaurant,
+                                                numPortions: findCart.items[i].numPortions,
+                                                price: findCart.items[i].totalPrice / findCart.items[i].numPortions,
+                                                cGst: cgst,
+                                                sGst: sgst,
+                                                subTotal: findCart.items[i].totalPrice,
+                                                total: findCart.items[i].totalPrice + cgst + sgst,
+                                                address: {
+                                                        houseFlat: "",
+                                                        appartment: "",
+                                                        landMark: "",
+                                                        houseType: "",
+                                                },
+                                                orderStatus: "unconfirmed",
+                                        };
+                                        const order = await orderModel.create(orderData);
+                                        let findUserOrder = await userOrder.findOne({ orderId });
+                                        if (findUserOrder) {
+                                                await userOrder.findByIdAndUpdate({ _id: findUserOrder._id }, { $push: { Orders: order._id }, $set: { subTotal: grandsubTotal, cGst: grandcgst, sGst: grandsgst, total: grandtotal, } }, { new: true });
+                                        } else {
+                                                let userOrderData = {
+                                                        userId: findCart.user,
+                                                        orderId,
+                                                        Orders: [order._id],
+                                                        address: {
+                                                                houseFlat: "",
+                                                                appartment: "",
+                                                                landMark: "",
+                                                                houseType: "",
+                                                        },
+                                                        totalItem: findCart.items.length,
+                                                        orderStatus: "unconfirmed",
+                                                        paymentStatus: "pending",
+                                                };
+
+                                                await userOrder.create(userOrderData);
+                                        }
+                                }
+                                let findUserOrder = await userOrder.findOne({ orderId }).populate('Orders');
+                                return res.status(200).json({ status: 200, message: "Order created successfully.", data: findUserOrder });
+                        }
+                } else {
+                        const findCart = await Cart.findOne({ user: req.user }).populate('items.dishId');
+                        if (findCart) {
+                                let grandtotal = 0, grandcgst = 0, grandsgst = 0, grandsubTotal = 0;
+                                let orderId = await reffralCode();
+                                for (let i = 0; i < findCart.items.length; i++) {
+                                        console.log(findCart.items[i].dishId);
+                                        const sgstPercentage = 0.1;
+                                        const cgstPercentage = 0.1;
+                                        const sgst = findCart.items[i].totalPrice * sgstPercentage;
+                                        const cgst = findCart.items[i].totalPrice * cgstPercentage;
+                                        grandcgst += cgst;
+                                        grandsgst += sgst;
+                                        grandsubTotal = findCart.items[i].totalPrice;
+                                        grandtotal += findCart.items[i].totalPrice + cgst + sgst;
+                                        let orderData = {
+                                                orderId,
+                                                userId: findCart.user,
+                                                dishId: findCart.items[i].dishId,
+                                                restaurantId: findCart.items[i].dishId.dishIsOfRestaurant,
+                                                numPortions: findCart.items[i].numPortions,
+                                                price: findCart.items[i].totalPrice / findCart.items[i].numPortions,
+                                                cGst: cgst,
+                                                sGst: sgst,
+                                                subTotal: findCart.items[i].totalPrice,
+                                                total: findCart.items[i].totalPrice + cgst + sgst,
+                                                address: {
+                                                        houseFlat: "",
+                                                        appartment: "",
+                                                        landMark: "",
+                                                        houseType: "",
+                                                },
+                                                orderStatus: "unconfirmed",
+                                        };
+                                        const order = await orderModel.create(orderData);
+                                        let findUserOrder = await userOrder.findOne({ orderId });
+                                        if (findUserOrder) {
+                                                await userOrder.findByIdAndUpdate({ _id: findUserOrder._id }, { $push: { Orders: order._id }, $set: { subTotal: grandsubTotal, cGst: grandcgst, sGst: grandsgst, total: grandtotal, } }, { new: true });
+                                        } else {
+                                                let userOrderData = {
+                                                        userId: findCart.user,
+                                                        orderId,
+                                                        Orders: [order._id],
+                                                        address: {
+                                                                houseFlat: "",
+                                                                appartment: "",
+                                                                landMark: "",
+                                                                houseType: "",
+                                                        },
+                                                        totalItem: findCart.items.length,
+                                                        orderStatus: "unconfirmed",
+                                                        paymentStatus: "pending",
+                                                };
+
+                                                await userOrder.create(userOrderData);
+                                        }
+                                }
+                                let findUserOrder = await userOrder.findOne({ orderId }).populate('Orders');
+                                return res.status(200).json({ status: 200, message: "Order created successfully.", data: findUserOrder });
+                        }
+                }
+        } catch (error) {
+                console.error(error);
+                return res.status(501).send({ status: 501, message: "Server error.", data: {} });
+        }
+};
+exports.placeOrder = async (req, res) => {
+        try {
+                const findUserOrder = await userOrder.findOne({ orderId: req.params.orderId });
+                if (findUserOrder) {
+                        if (req.body.paymentStatus === "paid") {
+                                const update = await userOrder.findByIdAndUpdate({ _id: findUserOrder._id }, { $set: { orderStatus: "confirmed", paymentStatus: "paid" } }, { new: true });
+                                for (let i = 0; i < update.Orders.length; i++) {
+                                        await orderModel.findByIdAndUpdate({ _id: update.Orders[i]._id }, { $set: { orderStatus: "confirmed", paymentStatus: "paid" } }, { new: true });
+                                }
+                                const transactionData = {
+                                        user: req.user._id,
+                                        orderId: findUserOrder._id,
+                                        date: Date.now(),
+                                        amount: findUserOrder.total,
+                                        type: "Debit",
+                                };
+                                const createdTransaction = await transaction.create(transactionData);
+                                return res.status(200).json({ status: 200, message: "Payment success.", data: update, });
+                        }
+                        if (req.body.paymentStatus === "failed") {
+                                return res.status(201).json({ status: 201, message: "Payment failed.", orderId: findUserOrder, });
+                        }
+                } else {
+                        return res.status(404).json({ status: 404, message: "No data found", data: {} });
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(500).send({ status: 500, message: "Server error.", data: {} });
+        }
+};
+exports.getAllOrders = async (req, res, next) => {
+        try {
+                const orders = await userOrder.find({ userId: req.user, orderStatus: "confirmed" }).populate('Orders');
+                if (orders.length == 0) {
+                        return res.status(404).json({ status: 404, message: "Orders not found", data: {} });
+                }
+                return res.status(200).json({ status: 200, msg: "orders of user", data: orders })
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+exports.getOrders = async (req, res, next) => {
+        try {
+                const orders = await orderModel.find({ userId: req.user, orderStatus: "confirmed" }).populate('dishId');
+                if (orders.length == 0) {
+                        return res.status(404).json({ status: 404, message: "Orders not found", data: {} });
+                }
+                return res.status(200).json({ status: 200, msg: "orders of user", data: orders })
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+exports.getOrderbyId = async (req, res, next) => {
+        try {
+                const orders = await orderModel.findById({ _id: req.params.id }).populate('restaurantId userId dishId');
+                if (!orders) {
+                        return res.status(404).json({ status: 404, message: "Orders not found", data: {} });
+                }
+                return res.status(200).json({ status: 200, msg: "orders of user", data: orders })
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+const reffralCode = async () => {
+        var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let OTP = '';
+        for (let i = 0; i < 9; i++) {
+                OTP += digits[Math.floor(Math.random() * 36)];
+        }
+        return OTP;
+}

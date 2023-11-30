@@ -9,4 +9,5 @@ module.exports = (app) => {
         app.patch('/api/restaurant/save-location', auth.restaurantAuthMiddleware, restaurantCreate.updateLocation);
         app.get('/api/restaurant/me', auth.restaurantAuthMiddleware, restaurantCreate.me);
         app.patch('/api/restaurant/me', auth.restaurantAuthMiddleware/*,cpUpload*/, restaurantCreate.updateMeRestaurant);
+        app.get('/api/restaurant/order', auth.restaurantAuthMiddleware, restaurantCreate.getOrders);
 };

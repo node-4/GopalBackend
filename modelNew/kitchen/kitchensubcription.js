@@ -29,6 +29,10 @@ const restaurantSchema = new mongoose.Schema(
                         type: Number,
                         default: 0
                 },
+                typeOfSubscription: {
+                        type: String,
+                        enum: ["Weekly", "Monthly", "Quarterly"]
+                },
                 breakfast: [{
                         type: objectid,
                         ref: "kitchenDish"

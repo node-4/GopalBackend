@@ -204,8 +204,8 @@ exports.allDailyImageInKitchenbyDate = async (req, res, next) => {
 };
 exports.createKitchenSubscription = async (req, res) => {
         try {
-                const { type, price, month, } = req.body;
-                if (!month || !type || !price) {
+                const { type, price, typeOfSubscription, } = req.body;
+                if (!typeOfSubscription || !type || !price) {
                         return res.status(400).send({ status: 400, msg: "Please provide month, plan, and price" });
                 }
                 const subscriptions = await KitchenSubscription.findOne({ kitchenId: req.user, type });
@@ -236,6 +236,16 @@ exports.createKitchenSubscription = async (req, res) => {
                         breakfastTiming = null;
                         lunchTiming = null;
                         dinnerTiming = "8 pm";
+                }
+                let month;
+                if (typeOfSubscription == "Monthly") {
+                        month = 30;
+                }
+                if (typeOfSubscription == "Weekly") {
+                        month = 7;
+                }
+                if (typeOfSubscription == "Quarterly") {
+                        month = 90;
                 }
                 const subscription = new KitchenSubscription({ kitchenId: req.user, type, breakfastTiming, lunchTiming, dinnerTiming, plan, price, month: month, });
                 const result = await subscription.save();
@@ -271,11 +281,46 @@ exports.getKitchenSubscriptionById = async (req, res) => {
 };
 exports.updateKitchenSubscription = async (req, res) => {
         try {
-                const { plan, price, month } = req.body;
-                if (!plan || !price) {
-                        return res.status(400).send("Please provide plan and price");
+                const { type, price, typeOfSubscription } = req.body;
+                if (!type || !price) {
+                        return res.status(400).send("Please provide type and price");
                 }
-                const updatedSubscription = await KitchenSubscription.findByIdAndUpdate(req.params.id, { plan, price, month: month || 0 }, { new: true });
+                let plan, breakfastTiming, lunchTiming, dinnerTiming;
+                if (type == "BLD") {
+                        plan = "Break + Lunch + Dinner";
+                        breakfastTiming = "Morning 9 am";
+                        lunchTiming = "Morning 9 am";
+                        dinnerTiming = "8 pm";
+                }
+                if (type == "LD") {
+                        plan = "Lunch + Dinner";
+                        breakfastTiming = null;
+                        lunchTiming = "Morning 9 am";
+                        dinnerTiming = "8 pm";
+                }
+                if (type == "L") {
+                        plan = "Only Lunch";
+                        breakfastTiming = null;
+                        lunchTiming = "Morning 9 am";
+                        dinnerTiming = null;
+                }
+                if (type == "D") {
+                        plan = "Only Dinner";
+                        breakfastTiming = null;
+                        lunchTiming = null;
+                        dinnerTiming = "8 pm";
+                }
+                let month;
+                if (typeOfSubscription == "Monthly") {
+                        month = 30;
+                }
+                if (typeOfSubscription == "Weekly") {
+                        month = 7;
+                }
+                if (typeOfSubscription == "Quarterly") {
+                        month = 90;
+                }
+                const updatedSubscription = await KitchenSubscription.findByIdAndUpdate(req.params.id, { $set: { type, breakfastTiming, lunchTiming, dinnerTiming, plan, price, month: month, } }, { new: true });
                 if (!updatedSubscription) {
                         return res.status(404).json({ msg: "Subscription not found" });
                 }

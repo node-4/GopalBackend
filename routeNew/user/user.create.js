@@ -23,5 +23,16 @@ module.exports = (app) => {
         app.post('/api/users/unsubscribe', auth.userAuthMiddleware, controller.unsubscribe);
         app.put('/api/users/verifyPayment/:id', auth.userAuthMiddleware, controller.verifyPayment);
         app.get('/api/users/mySubscribedPlans', auth.userAuthMiddleware, controller.mySubscribedPlans);
+        app.post("/api/v1/user/address/new", [auth.userAuthMiddleware], controller.createAddress);
+        app.get("/api/v1/user/getAddress", [auth.userAuthMiddleware], controller.getallAddress);
+        app.delete('/api/v1/user/address/:id', [auth.userAuthMiddleware], controller.deleteAddress);
+        app.get('/api/v1/user/address/:id', [auth.userAuthMiddleware], controller.getAddressbyId);
+        app.post('/api/v1/user/cart/addToCart', [auth.userAuthMiddleware], controller.addToCart);
+        app.get('/api/v1/user/cart/getCart', [auth.userAuthMiddleware], controller.getCart);
+        app.post('/api/v1/user/order/checkout', [auth.userAuthMiddleware], controller.checkout);
+        app.post("/api/v1/user/order/placeOrder/:orderId", [auth.userAuthMiddleware], controller.placeOrder);
+        app.get("/api/v1/order/allOrders", [auth.userAuthMiddleware], controller.getAllOrders);
+        app.get("/api/v1/order/Orders", [auth.userAuthMiddleware], controller.getOrders);
+        app.get("/api/v1/order/viewOrder/:id", [auth.userAuthMiddleware], controller.getOrderbyId);
 }
 
