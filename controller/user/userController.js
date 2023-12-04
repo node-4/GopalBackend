@@ -32,19 +32,7 @@ exports.signUp = async (req, res) => {
                         const data = { mobile: req.body.mobile, name: req.body.name, address: req.body.address, pincode: req.body.pincode, otp: otp, password: password };
                         const user = await User.create(data);
                         if (user) {
-                                // const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
-                                // if (requiredOtp) {
-                                //         const otpToUpdate = await Otp.findByIdAndUpdate({ _id: requiredOtp._id }, { $set: { otp: otp, password: password } }, { new: true });
-                                //         if (otpToUpdate) {
-                                //                 return res.status(200).json({ status: 200, msg: "signUp  successfully", data: user });
-                                //         }
-                                // } else {
-                                //         let password = bcrypt.hashSync(req.body.password, 8);
-                                //         const otpToSend = await Otp.create({ mobile: req.body.mobile, otp: otp, password: password, });
-                                //         if (otpToSend) {
                                 return res.status(200).json({ status: 200, msg: "signUp  successfully", data: user });
-                                // }
-                                // }
                         }
                 } else {
                         return res.status(409).send({ status: 409, msg: "User already exit" });
@@ -65,15 +53,12 @@ exports.signIn = async (req, res) => {
                 if (!admin) {
                         return res.status(400).send({ message: "Failed! User passed doesn't exist" });
                 }
-                // const requiredOtp = await Otp.findOne({ mobile: req.body.mobile });
-                // if (requiredOtp) {
                 const passwordIsValid = bcrypt.compareSync(req.body.password, admin.password);
                 if (!passwordIsValid) {
                         return res.status(401).send({ message: "Wrong password" });
                 }
                 const accessToken1 = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
                 return res.status(200).send({ msg: "User logged in successfully", accessToken: accessToken1, });
-                // }
         } catch (err) {
                 console.log(err);
                 return res.status(500).send({ message: "Internal server error while User signing in", });
@@ -120,18 +105,13 @@ exports.resetPassword = async (req, res) => {
                 const user = await User.findOne({ mobile: req.body.mobile, role: "user", });
                 if (!user) {
                         return res.status(404).send({ message: "User not found" });
-                } else {
-                        if (user.otp !== req.body.otp) {
-                                return res.status(400).json({ message: "Invalid OTP" });
+                } else
+                        if (req.body.newPassword == req.body.confirmPassword) {
+                                const updated = await User.findOneAndUpdate({ _id: user._id }, { $set: { password: bcrypt.hashSync(req.body.newPassword) } }, { new: true });
+                                return res.status(200).send({ message: "Password update successfully.", data: updated, });
                         } else {
-                                if (req.body.newPassword == req.body.confirmPassword) {
-                                        const updated = await User.findOneAndUpdate({ _id: user._id }, { $set: { password: bcrypt.hashSync(req.body.newPassword) } }, { new: true });
-                                        return res.status(200).send({ message: "Password update successfully.", data: updated, });
-                                } else {
-                                        return res.status(501).send({ message: "Password Not matched.", data: {}, });
-                                }
+                                return res.status(501).send({ message: "Password Not matched.", data: {}, });
                         }
-                }
         } catch (error) {
                 console.error(error);
                 return res.status(500).send({ message: "Server error" + error.message });
@@ -141,17 +121,14 @@ exports.loginUserSendOtp = async (req, res) => {
         try {
                 const { mobile } = req.body;
                 const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false, });
-                const requiredOtp = await Otp.findOne({ mobile: mobile });
+                const requiredOtp = await User.findOne({ mobile: mobile });
                 if (requiredOtp) {
-                        const otpToUpdate = await Otp.findByIdAndUpdate({ _id: requiredOtp._id }, { $set: { otp: otp } }, { new: true });
+                        const otpToUpdate = await User.findByIdAndUpdate({ _id: requiredOtp._id }, { $set: { otp: otp } }, { new: true });
                         if (otpToUpdate) {
                                 return res.status(200).send({ status: 200, msg: "Otp send successfully", data: otp, otpToSend: otpToUpdate, });
                         }
                 } else {
-                        const otpToSend = await Otp.create({ mobile: mobile, otp: otp, });
-                        if (otpToSend) {
-                                return res.status(200).send({ status: 200, msg: "Otp send successfully", data: otp, otpToSend: otpToUpdate, });
-                        }
+                        return res.status(404).send({ message: "Failed! User passed doesn't exist" });
                 }
         } catch (error) {
                 console.log(error);
@@ -161,29 +138,12 @@ exports.loginUserSendOtp = async (req, res) => {
 exports.loginUserVerifyOtp = async (req, res, next) => {
         try {
                 const { mobile, otp } = req.body;
-                const requiredOtp = await Otp.findOne({ mobile: mobile });
-                if (otp !== requiredOtp.otp) {
-                        return res.status(400).send({ status: 400, msg: "wrong otp", data: {} });
-                }
-                const user = await User.findOne({ mobile: requiredOtp.mobile });
-                if (!user && otp === requiredOtp.otp) {
-                        const newUser = await User.create({ mobile: requiredOtp.mobile, });
-                        const userCart = await Cart.create({ user: newUser._id, });
-                        if (!newUser || !userCart) {
-                                return res.status(400).send({ status: 400, msg: "cannot save the user or create user cart", data: {} });
-                        } else {
-                                // await Notification.create({
-                                //         receiverUser: newUser._id,
-                                //         body: `welcome ${newUser.mobile}`,
-                                // });
-                                const token = await genToken({ id: newUser._id, role: newUser.role });
-                                return res.status(200).send({ status: 200, msg: "Otpverify successfully.", data: token, user: newUser });
-                        }
-                }
-                if (user && otp === requiredOtp.otp) {
-                        // await Notification.create({ receiverUser: user._id, body: `welcome ${user.mobile}`, });
-                        const token = await genToken({ id: user._id, role: user.role });
+                const user = await User.findOne({ mobile: mobile });
+                if (user && otp === user.otp) {
+                        const token = await genToken({ id: newUser._id, role: newUser.role });
                         return res.status(200).send({ status: 200, msg: "Otpverify successfully.", data: token, user: user });
+                } else {
+                        return res.status(404).send({ message: "Failed! User passed doesn't exist" });
                 }
         } catch (error) {
                 console.log(error);
