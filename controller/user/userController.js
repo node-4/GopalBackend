@@ -18,6 +18,7 @@ const transaction = require("../../model/transactionModel");
 const cateringQuery = require("../../model/catering/cateringQuery");
 const cateringService = require("../../model/catering/cateringService");
 const cateringDish = require("../../model/catering/cateringDishes");
+const Notification = require("../../model/notification");
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
 
@@ -733,28 +734,28 @@ exports.getOrderbyId = async (req, res, next) => {
 };
 exports.createInquiryCatering = async (req, res, next) => {
         try {
-                if(req.body.cateringType == "Customized"){
+                if (req.body.cateringType == "Customized") {
                         let itemsArray = [];
                         for (let i = 0; i < items.length; i++) {
-                            const dishData = await cateringDish.findOne({ _id: items[i], dishIsOfRestaurant: req.body.dishIsOfRestaurant});
-                            if(dishData){
-                                itemsArray.push(items[i]);
-                            }
+                                const dishData = await cateringDish.findOne({ _id: items[i], dishIsOfRestaurant: req.body.dishIsOfRestaurant });
+                                if (dishData) {
+                                        itemsArray.push(items[i]);
+                                }
                         }
                         let obj = {
                                 user: req.user,
                                 option: req.body.option,
                                 dishIsOfRestaurant: req.body.dishIsOfRestaurant,
                                 items: itemsArray,
-                                dateOfOccasion:req.body.dateOfOccasion,
+                                dateOfOccasion: req.body.dateOfOccasion,
                                 noOfPlates: req.body.noOfPlates,
-                        }                
+                        }
                         const user = await cateringQuery.create(obj);
-                        if(user){
+                        if (user) {
                                 return res.status(200).json({ status: 200, message: "Catering query send successfully.", data: user });
                         }
-                }else{
-                        const findCatering = await cateringService.findById({ _id: req.body.cateringServiceId});
+                } else {
+                        const findCatering = await cateringService.findById({ _id: req.body.cateringServiceId });
                         if (!findCatering) {
                                 return res.status(404).json({ status: 404, message: "cateringService not found", data: {} });
                         }
@@ -765,10 +766,10 @@ exports.createInquiryCatering = async (req, res, next) => {
                                 dishIsOfRestaurant: findCatering.dishIsOfRestaurant,
                                 items: findCatering.items,
                                 noOfPlates: req.body.noOfPlates,
-                                dateOfOccasion:req.body.dateOfOccasion,
-                        }                
+                                dateOfOccasion: req.body.dateOfOccasion,
+                        }
                         const user = await cateringQuery.create(obj);
-                        if(user){
+                        if (user) {
                                 return res.status(200).json({ status: 200, message: "Catering query send successfully.", data: user });
                         }
                 }
@@ -801,6 +802,41 @@ exports.getCateringQuerybyId = async (req, res, next) => {
                 return res.status(501).send({ status: 501, message: "server error.", data: {}, });
         }
 };
+exports.getAllNotificationByUser = async (req, res, next) => {
+        try {
+                const requiredResults = await Notification.find({ receiverUser: req.user }).lean();
+                if (requiredResults.length === 0)
+                        return res.status(200).json({ message: "no Notification found" });
+
+                return res.status(200).json({ requiredResults });
+        } catch (error) {
+                console.log(error);
+                return res.status(500).json({
+                        errorName: error.name,
+                        message: error.message,
+                });
+        }
+};
+exports.getNotificationByIdByUser = async (req, res, next) => {
+        try {
+                console.log("hit notification by id ");
+                const requiredResults = await Notification.findById({
+                        _id: req.params.id,
+                }).lean();
+
+                if (requiredResults.length === 0)
+                        return res.status(200).json({ message: "no Notification found" });
+
+                return res.status(200).json({ requiredResults });
+        } catch (error) {
+                console.log(error);
+                return res.status(500).json({
+                        errorName: error.name,
+                        message: error.message,
+                });
+        }
+};
+
 const reffralCode = async () => {
         var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let OTP = '';

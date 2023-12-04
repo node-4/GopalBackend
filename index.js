@@ -30,6 +30,7 @@ require('./route/admin/cancellationPolicy')(app);
 require('./route/admin/privacy')(app);
 require('./route/admin/aboutus')(app);
 require('./route/admin/dishes')(app);
+require('./route/admin/notification')(app);
 
 
 // restaurant routes use

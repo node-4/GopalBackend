@@ -34,8 +34,10 @@ module.exports = (app) => {
         app.get("/api/v1/order/allOrders", [auth.userAuthMiddleware], controller.getAllOrders);
         app.get("/api/v1/order/Orders", [auth.userAuthMiddleware], controller.getOrders);
         app.get("/api/v1/order/viewOrder/:id", [auth.userAuthMiddleware], controller.getOrderbyId);
-        app.post('/api/v1/CateringInquiry/createInquiryCatering',  [auth.userAuthMiddleware], controller.createInquiryCatering);
+        app.post('/api/v1/CateringInquiry/createInquiryCatering', [auth.userAuthMiddleware], controller.createInquiryCatering);
         app.get("/api/v1/CateringInquiry/InquiryCatering", [auth.userAuthMiddleware], controller.getCateringQuery);
         app.get("/api/v1/CateringInquiry/viewCateringInquiry/:id", [auth.userAuthMiddleware], controller.getCateringQuerybyId)
+        app.get('/api/getAllNotificationByUser', [auth.userAuthMiddleware], controller.getAllNotificationByUser);
+        app.get('/api/getNotificationByIdByUser/:id', controller.getNotificationByIdByUser);
 }
 
