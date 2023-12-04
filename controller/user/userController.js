@@ -95,6 +95,48 @@ exports.saveCurrentLocation = async (req, res, next) => {
                 return res.status(500).send({ message: "Internal server error while User update location", });
         }
 };
+exports.forgetPassword = async (req, res) => {
+        const { mobile } = req.params;
+        try {
+                const user = await User.findOne({ mobile: mobile, role: "user", });
+                if (!user) {
+                        return res.status(404).send({ status: 404, message: "User not found" });
+                }
+                const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false, });
+                const updated = await User.findOneAndUpdate({ _id: user._id }, { $set: otp }, { new: true });
+                let obj = {
+                        id: updated._id,
+                        otp: updated.otp,
+                        mobile: updated.mobile
+                }
+                return res.status(200).send({ status: 200, message: "OTP send", data: obj });
+        } catch (error) {
+                console.error(error);
+                return res.status(500).send({ status: 500, message: "Server error" + error.message });
+        }
+};
+exports.resetPassword = async (req, res) => {
+        try {
+                const user = await User.findOne({ mobile: req.body.mobile, role: "user", });
+                if (!user) {
+                        return res.status(404).send({ message: "User not found" });
+                } else {
+                        if (user.otp !== req.body.otp) {
+                                return res.status(400).json({ message: "Invalid OTP" });
+                        } else {
+                                if (req.body.newPassword == req.body.confirmPassword) {
+                                        const updated = await User.findOneAndUpdate({ _id: user._id }, { $set: { password: bcrypt.hashSync(req.body.newPassword) } }, { new: true });
+                                        return res.status(200).send({ message: "Password update successfully.", data: updated, });
+                                } else {
+                                        return res.status(501).send({ message: "Password Not matched.", data: {}, });
+                                }
+                        }
+                }
+        } catch (error) {
+                console.error(error);
+                return res.status(500).send({ message: "Server error" + error.message });
+        }
+};
 exports.loginUserSendOtp = async (req, res) => {
         try {
                 const { mobile } = req.body;

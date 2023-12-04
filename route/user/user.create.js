@@ -9,6 +9,8 @@ const { productUpload, upload, bannerUpload, blogUpload, gallaryUpload, Nutritio
 module.exports = (app) => {
         app.post("/api/users/signUp", controller.signUp);
         app.post("/api/users/signIn", controller.signIn);
+        app.post("/api/users/forgetPassword/:mobile", controller.forgetPassword);
+        app.post("/api/users/resetPassword", controller.resetPassword);
         app.patch("/api/users/save-location", auth.userAuthMiddleware, controller.saveCurrentLocation);
         app.post("/api/users/sendOtp", controller.loginUserSendOtp);
         app.post("/api/users/loginUserVerifyOtp", controller.loginUserVerifyOtp);
