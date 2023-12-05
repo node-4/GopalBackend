@@ -88,7 +88,7 @@ exports.forgetPassword = async (req, res) => {
                         return res.status(404).send({ status: 404, message: "User not found" });
                 }
                 const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false, });
-                const updated = await User.findOneAndUpdate({ _id: user._id }, { $set: otp }, { new: true });
+                const updated = await User.findOneAndUpdate({ _id: user._id }, { $set: { otp: otp } }, { new: true });
                 let obj = {
                         id: updated._id,
                         otp: updated.otp,
