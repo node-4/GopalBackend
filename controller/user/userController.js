@@ -140,7 +140,7 @@ exports.loginUserVerifyOtp = async (req, res, next) => {
                 const { mobile, otp } = req.body;
                 const user = await User.findOne({ mobile: mobile });
                 if (user && otp === user.otp) {
-                        const token = await genToken({ id: newUser._id, role: newUser.role });
+                        const token = await genToken({ id: user._id, role: user.role });
                         return res.status(200).send({ status: 200, msg: "Otpverify successfully.", data: token, user: user });
                 } else {
                         return res.status(404).send({ message: "Failed! User passed doesn't exist" });
