@@ -58,7 +58,7 @@ exports.signIn = async (req, res) => {
                         return res.status(401).send({ message: "Wrong password" });
                 }
                 const accessToken1 = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "365d", });
-                return res.status(200).send({ msg: "User logged in successfully", accessToken: accessToken1, });
+                return res.status(200).send({ msg: "User logged in successfully", accessToken: accessToken1, data: admin });
         } catch (err) {
                 console.log(err);
                 return res.status(500).send({ message: "Internal server error while User signing in", });
