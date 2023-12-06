@@ -21,7 +21,7 @@ const cateringDish = require("../../model/catering/cateringDishes");
 const Notification = require("../../model/notification");
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
-
+const { Types } = require('mongoose');
 
 exports.signUp = async (req, res) => {
         try {
@@ -263,15 +263,23 @@ exports.getAllrestaurant = async (req, res, next) => {
                 if (!userData) {
                         return res.status(400).send({ status: 400, msg: "User not found" });
                 }
-                console.log(userData);
-                const restaurant = await Restaurant.find({ role: "restaurant" });
-                if (restaurant.length == 0) {
-                        return res.status(404).send({ status: 404, message: "restaurant not found ", data: {} });
+                const restaurants = await Restaurant.find({ role: "restaurant" });
+                if (restaurants.length === 0) {
+                        return res.status(404).send({ status: 404, message: "Restaurant not found", data: {} });
                 }
-                return res.status(200).send({ status: 200, message: "restaurant found  successfully ", data: restaurant });
+                const restaurantData = await Promise.all(restaurants.map(async (restaurant) => {
+                        const randomDishes = await Dish.aggregate([
+                                { $match: { dishIsOfRestaurant: new Types.ObjectId(restaurant._id) } },
+                                { $sample: { size: 3 } }
+                        ]);
+                        const dishNames = randomDishes.map((dish) => dish.dishName);
+                        restaurant.dishNames = dishNames;
+                        return { restaurant: restaurant, dishes: dishNames };
+                }));
+                return res.status(200).send({ status: 200, message: "Restaurants and random dishes found successfully", data: restaurantData });
         } catch (error) {
                 console.log(error);
-                return res.status(500).json({ errorname: error.name, message: error.message, });
+                return res.status(500).json({ errorname: error.name, message: error.message });
         }
 };
 exports.getAllHomeCarriageRestaurant = async (req, res, next) => {

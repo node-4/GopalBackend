@@ -44,15 +44,20 @@ const restaurantSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    time: {
+      type: String,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
     location: {
       type: locationSchema,
     },
     option: {
       type: String,
-      //  enum:["veg","nonveg"]
+      enum: ["veg", "nonveg", "Both"]
     },
-    // typeOfMeal: { type: String },
-
   },
   {
     timestamps: true,
