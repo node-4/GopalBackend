@@ -1,5 +1,6 @@
-const { model, Schema } = require("mongoose");
-const bannerSchema = new Schema({
+const mongoose = require("mongoose");
+const objectid = mongoose.Schema.Types.ObjectId;
+const bannerSchema = new mongoose.Schema({
     restaurantId: {
         type: objectid,
         ref: "Restaurant"
@@ -11,5 +12,5 @@ const bannerSchema = new Schema({
         type: String
     }
 })
-module.exports = model('banner', bannerSchema)
+module.exports = mongoose.model('banner', bannerSchema)
 
