@@ -34,6 +34,7 @@ require('./route/admin/notification')(app);
 
 
 // restaurant routes use
+require('./route/restaurant/banner')(app);
 require('./route/restaurant/cancellationPolicy')(app);
 require('./route/restaurant/cateringSection')(app);
 require('./route/restaurant/dishes')(app);

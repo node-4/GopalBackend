@@ -242,18 +242,12 @@ exports.editCurrentUser = async (req, res, next) => {
                                         return res.status(409).send({ status: 409, message: "User already exit" });
                                 }
                         }
-                        if (findUser.email !== email) {
-                                const user = await User.findOne({ email: email });
-                                if (user) {
-                                        return res.status(409).send({ status: 409, message: "User already exit" });
-                                }
-                        }
                 }
                 let profileImage;
                 if (req.file) {
                         profileImage = req.file.path
                 }
-                const update = { name, email, mobile, address, pincode, profileImage };
+                const update = { name, mobile, address, pincode, profileImage };
                 const updatedUser = await User.findByIdAndUpdate(req.user, update, { new: true, runValidators: true, });
                 if (!updatedUser) {
                         return res.status(400).send({ status: 400, message: "cannot update the user ", data: {} });
