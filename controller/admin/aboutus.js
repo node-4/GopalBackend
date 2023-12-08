@@ -51,10 +51,10 @@ exports.deletePrivacyPolicy = async (req, res) => {
   try {
     const privacyPolicy = await Aboutus.findById(req.params.id);
     if (privacyPolicy) {
-      await privacyPolicy.remove();
-      return res.status(200).json({ status: 200, message: 'About us deleted', data: null });
+      const data = await Aboutus.findByIdAndDelete(req.params.id);
+      return res.status(200).json({ status: 200, message: "Deleted", data: data });
     } else {
-      return res.status(404).json({ status: 404, message: 'About us not found', data: null });
+      return res.status(404).json({ status: 404, message: 'Datanot found', data: null });
     }
   } catch (err) {
     return res.status(500).json({ status: 500, message: 'Internal Server Error', data: err.message });
