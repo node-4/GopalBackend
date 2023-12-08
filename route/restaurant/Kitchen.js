@@ -10,6 +10,7 @@ const { productUpload, upload, bannerUpload, blogUpload, gallaryUpload, Nutritio
 module.exports = (app) => {
         app.post('/api/createKitchen', auth.restaurantAuthMiddleware, upload.single('image'), controller.createKitchen);
         app.get('/api/Kitchen/getKitchenes', auth.restaurantAuthMiddleware, controller.getAllKitchens);
+        app.get('/api/Kitchen/getAllKitchensByRestaurantId/:restaurantId', controller.getAllKitchensByRestaurantId);
         app.get('/api/Kitchen/getKitchenesById/:id', controller.getKitchenById);
         app.patch('/api/Kitchen/update/:id', auth.restaurantAuthMiddleware, upload.single('image'), controller.updateKitchen);
         app.delete('/api/Kitchen/deleteKitchen/:id', auth.restaurantAuthMiddleware, controller.deleteKitchen);

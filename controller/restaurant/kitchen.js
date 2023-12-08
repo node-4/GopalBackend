@@ -39,6 +39,20 @@ exports.getAllKitchens = async (req, res, next) => {
                 return res.status(500).json({ status: 500, errorName: error.name, message: error.message, });
         }
 };
+exports.getAllKitchensByRestaurantId = async (req, res, next) => {
+        try {
+                const DishData = await Kitchen.find({ restaurantId: req.params.restaurantId });
+                if (DishData.length === 0) {
+                        return res.status(400).send({ status: 400, message: "cannot get the Kitchen" });
+                } else {
+                        return res.status(200).send({ status: 200, message: "get the Kitchen", data: DishData });
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(500).json({ status: 500, errorName: error.name, message: error.message, });
+        }
+};
+
 exports.getKitchenById = async (req, res, next) => {
         try {
                 const DishData = await Kitchen.findOne({ _id: req.params.id }).populate('restaurantId');
