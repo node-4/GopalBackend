@@ -220,9 +220,9 @@ exports.createKitchenSubscription = async (req, res) => {
         try {
                 const { type, price, typeOfSubscription, } = req.body;
                 if (!typeOfSubscription || !type || !price) {
-                        return res.status(400).send({ status: 400, msg: "Please provide month, plan, and price" });
+                        return res.status(400).send({ status: 400, msg: "Please provide type, typeOfSubscription, and price" });
                 }
-                const subscriptions = await KitchenSubscription.findOne({ kitchenId: req.user, type });
+                const subscriptions = await KitchenSubscription.findOne({ kitchenId: req.user, type, typeOfSubscription });
                 if (subscriptions) {
                         return res.status(400).send({ status: 400, msg: "Subscription already exists" });
                 }
@@ -261,7 +261,7 @@ exports.createKitchenSubscription = async (req, res) => {
                 if (typeOfSubscription == "Quarterly") {
                         month = 90;
                 }
-                const subscription = new KitchenSubscription({ kitchenId: req.user, type, breakfastTiming, lunchTiming, dinnerTiming, plan, price, month: month, });
+                const subscription = new KitchenSubscription({ kitchenId: req.user, type, breakfastTiming, typeOfSubscription, lunchTiming, dinnerTiming, plan, price, month: month, });
                 const result = await subscription.save();
                 return res.status(200).json({ status: 200, msg: "Subscription created successfully", data: result });
         } catch (error) {
