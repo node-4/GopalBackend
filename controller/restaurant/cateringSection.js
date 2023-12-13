@@ -241,11 +241,11 @@ exports.getCateringServicesByIdOfRestaurant = async (req, res, next) => {
 };
 exports.getCateringServiceById = async (req, res, next) => {
   try {
-    const cateringService = await cateringService.findById(req.params.id).populate('items');
-    if (!cateringService) {
+    const findCateringService = await cateringService.findById(req.params.id).populate('items dishIsOfRestaurant');
+    if (!findCateringService) {
       return res.status(404).json({ status: 404, message: "Catering service not found" });
     }
-    return res.status(200).json({ status: 200, message: "Get catering service by ID", data: cateringService });
+    return res.status(200).json({ status: 200, message: "Get catering service by ID", data: findCateringService });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
