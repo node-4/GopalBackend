@@ -191,116 +191,116 @@ exports.deleteDish = async (req, res) => {
   }
 };
 exports.createCateringService = async (req, res, next) => {
-    try {
-        const { platesName, items, option } = req.body;
-        let itemsArray = [];
-        for (let i = 0; i < items.length; i++) {
-            const dishData = await cateringDish.findOne({ _id: items[i], dishIsOfRestaurant: req.user});
-            if(dishData){
-                itemsArray.push(items[i]);
-            }
-        }
-        const newCateringService = await cateringService.create({
-            platesName,
-            dishIsOfRestaurant: req.user,
-            items:itemsArray,
-            option,
-        });
-
-        return res.status(200).json({ status: 200, message: "Catering service created", data: newCateringService });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  try {
+    const { platesName, items, option } = req.body;
+    let itemsArray = [];
+    for (let i = 0; i < items.length; i++) {
+      const dishData = await cateringDish.findOne({ _id: items[i], dishIsOfRestaurant: req.user });
+      if (dishData) {
+        itemsArray.push(items[i]);
+      }
     }
+    const newCateringService = await cateringService.create({
+      platesName,
+      dishIsOfRestaurant: req.user,
+      items: itemsArray,
+      option,
+    });
+
+    return res.status(200).json({ status: 200, message: "Catering service created", data: newCateringService });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  }
 };
 exports.getAllCateringServices = async (req, res, next) => {
-    try {
-        const cateringServices = await cateringService.find({dishIsOfRestaurant: req.user});
-        if(cateringServices.length==0){
-            return res.status(404).json({ status: 404, message: "Catering services not found.", data: {} });
-        }
-        return res.status(200).json({ status: 200, message: "Get all catering services", data: cateringServices });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  try {
+    const cateringServices = await cateringService.find({ dishIsOfRestaurant: req.user });
+    if (cateringServices.length == 0) {
+      return res.status(404).json({ status: 404, message: "Catering services not found.", data: {} });
     }
+    return res.status(200).json({ status: 200, message: "Get all catering services", data: cateringServices });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  }
 };
 exports.getCateringServicesByIdOfRestaurant = async (req, res, next) => {
-    try {
-      console.log("hit cateringDish");
-      const dishData = await cateringDish.find({ dishIsOfRestaurant: req.params.id })
-      if (dishData.length === 0) {
-        return res.status(400).send({ status: 400, message: "cannot get the Catering services" });
-      } else {
-        return res.status(200).send({ status: 200, message: "get the Catering services", data: dishData });
-      }
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ errorName: error.name, message: error.message });
+  try {
+    console.log("hit cateringService");
+    const dishData = await cateringService.find({ dishIsOfRestaurant: req.params.id }).populate('items')
+    if (dishData.length === 0) {
+      return res.status(400).send({ status: 400, message: "cannot get the Catering services" });
+    } else {
+      return res.status(200).send({ status: 200, message: "get the Catering services", data: dishData });
     }
-  };
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ errorName: error.name, message: error.message });
+  }
+};
 exports.getCateringServiceById = async (req, res, next) => {
-    try {
-        const cateringService = await cateringService.findById(req.params.id);
-        if (!cateringService) {
-            return res.status(404).json({ status: 404, message: "Catering service not found" });
-        }
-        return res.status(200).json({ status: 200, message: "Get catering service by ID", data: cateringService });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  try {
+    const cateringService = await cateringService.findById(req.params.id).populate('items');
+    if (!cateringService) {
+      return res.status(404).json({ status: 404, message: "Catering service not found" });
     }
+    return res.status(200).json({ status: 200, message: "Get catering service by ID", data: cateringService });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  }
 };
 exports.updateCateringService = async (req, res, next) => {
-    try {
-        const {  platesName, items, option } = req.body;
-        const existingCateringService = await cateringService.findOne({_id: req.params.id,dishIsOfRestaurant: req.user,});
-        if (!existingCateringService) {
-            return res.status(404).json({ status: 404, message: "Catering service not found" });
-        }
-        let itemsArray = [];
-        if(items.length>0){
-            for (let i = 0; i < items.length; i++) {
-                const dishData = await cateringDish.findOne({ _id: items[i], dishIsOfRestaurant: req.user });
-                if (dishData) {
-                    itemsArray.push(items[i]);
-                }
-            }
-        }else{
-            itemsArray = existingCateringService.items;
-        }
-        existingCateringService.platesName = platesName || existingCateringService.platesName;
-        existingCateringService.items = itemsArray;
-        existingCateringService.option = option|| existingCateringService.option;
-        await existingCateringService.save();
-
-        return res.status(200).json({ status: 200, message: "Catering service updated", data: existingCateringService });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  try {
+    const { platesName, items, option } = req.body;
+    const existingCateringService = await cateringService.findOne({ _id: req.params.id, dishIsOfRestaurant: req.user, });
+    if (!existingCateringService) {
+      return res.status(404).json({ status: 404, message: "Catering service not found" });
     }
+    let itemsArray = [];
+    if (items.length > 0) {
+      for (let i = 0; i < items.length; i++) {
+        const dishData = await cateringDish.findOne({ _id: items[i], dishIsOfRestaurant: req.user });
+        if (dishData) {
+          itemsArray.push(items[i]);
+        }
+      }
+    } else {
+      itemsArray = existingCateringService.items;
+    }
+    existingCateringService.platesName = platesName || existingCateringService.platesName;
+    existingCateringService.items = itemsArray;
+    existingCateringService.option = option || existingCateringService.option;
+    await existingCateringService.save();
+
+    return res.status(200).json({ status: 200, message: "Catering service updated", data: existingCateringService });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  }
 };
 exports.deleteCateringService = async (req, res, next) => {
-    try {
-        const deletedCateringService = await cateringService.findByIdAndDelete(req.params.id);
-        if (!deletedCateringService) {
-            return res.status(404).json({ status: 404, message: "Catering service not found" });
-        }
-        return res.status(200).json({ status: 200, message: "Catering service deleted", data: deletedCateringService });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  try {
+    const deletedCateringService = await cateringService.findByIdAndDelete(req.params.id);
+    if (!deletedCateringService) {
+      return res.status(404).json({ status: 404, message: "Catering service not found" });
     }
+    return res.status(200).json({ status: 200, message: "Catering service deleted", data: deletedCateringService });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: 500, errorName: error.name, message: error.message });
+  }
 };
 exports.getCateringQuery = async (req, res, next) => {
   try {
-          const orders = await cateringQuery.find({dishIsOfRestaurant:req.user }).populate('user items dishIsOfRestaurant cateringServiceId')
-          if (orders.length == 0) {
-                  return res.status(404).json({ status: 404, message: "Catering query not found", data: {} });
-          }
-          return res.status(200).json({ status: 200, msg: "Catering query of user", data: orders })
+    const orders = await cateringQuery.find({ dishIsOfRestaurant: req.user }).populate('user items dishIsOfRestaurant cateringServiceId')
+    if (orders.length == 0) {
+      return res.status(404).json({ status: 404, message: "Catering query not found", data: {} });
+    }
+    return res.status(200).json({ status: 200, msg: "Catering query of user", data: orders })
   } catch (error) {
-          console.log(error);
-          return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+    console.log(error);
+    return res.status(501).send({ status: 501, message: "server error.", data: {}, });
   }
 };

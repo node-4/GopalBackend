@@ -17,8 +17,8 @@ module.exports = (app) => {
         app.delete('/api/Catering/deleteDish/:id', auth.restaurantAuthMiddleware, controller.deleteDish);
         app.post('/api/Catering/createCateringService', auth.restaurantAuthMiddleware, controller.createCateringService);
         app.get('/api/Catering/getAllCateringServices', auth.restaurantAuthMiddleware, controller.getAllCateringServices);
-        app.get('/api/Catering/getCateringServicesByIdOfRestaurant/:id', auth.restaurantAuthMiddleware, controller.getCateringServicesByIdOfRestaurant);
-        app.get('/api/Catering/getCateringServiceById/:id', auth.restaurantAuthMiddleware, controller.getCateringServiceById);
+        app.get('/api/Catering/getCateringServicesByIdOfRestaurant/:id', controller.getCateringServicesByIdOfRestaurant);
+        app.get('/api/Catering/getCateringServiceById/:id', controller.getCateringServiceById);
         app.patch('/api/Catering/updateCateringService/:id', auth.restaurantAuthMiddleware, controller.updateCateringService);
         app.delete('/api/Catering/deleteCateringService/:id', auth.restaurantAuthMiddleware, controller.deleteCateringService);
         app.get("/api/v1/Catering/InquiryCatering", [auth.restaurantAuthMiddleware], controller.getCateringQuery);
