@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-
+const mongoosePaginate = require("mongoose-paginate");
+const mongooseAggregatePaginate = require("mongoose-aggregate-paginate");
 const dishSchema = new mongoose.Schema({
     foodImg: {
         type: String,
@@ -40,5 +41,6 @@ const dishSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
-
+dishSchema.plugin(mongoosePaginate);
+dishSchema.plugin(mongooseAggregatePaginate);
 module.exports = mongoose.model('Dish', dishSchema);

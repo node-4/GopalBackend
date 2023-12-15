@@ -44,6 +44,21 @@ exports.getDish = async (req, res, next) => {
     return res.status(500).json({ status: 500, errorName: error.name, message: error.message, });
   }
 };
+exports.getDishforSearch = async (req, res, next) => {
+  try {
+    const searchTerm = req.query.q;
+    const regex = new RegExp(searchTerm, 'i');
+    const results = await Dish.find({ $or: [{ dishName: { $regex: regex } }, { description: { $regex: regex } },], });
+    if (results.length === 0) {
+      return res.status(400).send({ status: 400, message: "cannot get the Dish" });
+    } else {
+      return res.status(200).send({ status: 200, message: "get the Dish", data: results });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 500, message: "Internal server error", data: error.message, });
+  }
+};
 exports.getDishByIdOfRestaurant = async (req, res, next) => {
   try {
     console.log("hit restaurant get Dish");

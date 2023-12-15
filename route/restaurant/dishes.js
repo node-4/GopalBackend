@@ -10,6 +10,7 @@ const { productUpload, upload, bannerUpload, blogUpload, gallaryUpload, Nutritio
 module.exports = (app) => {
         app.post('/api/createDishes', auth.restaurantAuthMiddleware, upload.single('image'), controller.createDish);
         app.get('/api/Dish/getDishes', auth.restaurantAuthMiddleware, controller.getDish);
+        app.get('/api/Dish/getDishforSearch', controller.getDishforSearch);
         app.get('/api/Dish/getDishesByRestaurant/:id', controller.getDishByIdOfRestaurant);
         app.get('/api/getdishesByName/:dishName', controller.getdishesByName);
         app.patch('/api/Dish/update/:id', auth.restaurantAuthMiddleware, upload.single('image'), controller.editDish);
