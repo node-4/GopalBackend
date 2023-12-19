@@ -532,6 +532,55 @@ exports.getCart = async (req, res, next) => {
                 return res.status(500).json({ status: 500, message: "Server error.", data: {} });
         }
 };
+exports.deleteCart = async (req, res) => {
+        try {
+                let findCart = await Cart.findOne({ user: req.user });
+                if (findCart) {
+                        await Cart.findByIdAndDelete({ _id: findCart._id });
+                        let findCarts = await Cart.findOne({ user: req.user });
+                        if (findCarts) {
+                                return res.status(200).json({ status: 200, message: "cart not delete.", data: findCarts })
+                        } else {
+                                return res.status(200).json({ status: 200, message: "cart delete Successfully.", data: {} })
+                        }
+                } else {
+                        return res.status(404).send({ status: 404, message: "Cart not found." });
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
+exports.deleteItemsfromCart = async (req, res) => {
+        try {
+                const user = await User.findById(req.user._id);
+                if (!user) {
+                        return res.status(404).send({ status: 404, message: "User not found or token expired." });
+                } else {
+                        let findCart = await Cart.findOne({ userId: user._id });
+                        if (findCart) {
+                                let items = [], count = 0;
+                                for (let i = 0; i < findCart.items.length; i++) {
+                                        if ((findCart.items[i]._id).toString() != req.params.cartItemId) {
+                                                items.push(findCart.items[i])
+                                                count++
+                                        }
+                                }
+                                if (count == findCart.items.length - 1) {
+                                        let update = await Cart.findByIdAndUpdate({ _id: findCart._id }, { $set: { items: items } }, { new: true });
+                                        if (update) {
+                                                return res.status(200).json({ status: 200, message: "Item delete from cart Successfully.", data: update })
+                                        }
+                                }
+                        } else {
+                                return res.status(404).send({ status: 404, message: "Cart not found." });
+                        }
+                }
+        } catch (error) {
+                console.log(error);
+                return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+        }
+};
 exports.checkout = async (req, res) => {
         try {
                 let existingOrders = await orderModel.find({ user: req.user._id, orderStatus: "unconfirmed" });

@@ -30,6 +30,8 @@ module.exports = (app) => {
         app.delete('/api/v1/user/address/:id', [auth.userAuthMiddleware], controller.deleteAddress);
         app.get('/api/v1/user/address/:id', [auth.userAuthMiddleware], controller.getAddressbyId);
         app.post('/api/v1/user/cart/addToCart', [auth.userAuthMiddleware], controller.addToCart);
+        app.delete("/api/v1/user/deleteCart", [authJwt.verifyToken], controller.deleteCart);
+        app.put("/api/v1/user/deleteItemsfromCart/:cartItemId", [authJwt.verifyToken], auth.deleteItemsfromCart);
         app.get('/api/v1/user/cart/getCart', [auth.userAuthMiddleware], controller.getCart);
         app.post('/api/v1/user/order/checkout', [auth.userAuthMiddleware], controller.checkout);
         app.post("/api/v1/user/order/placeOrder/:orderId", [auth.userAuthMiddleware], controller.placeOrder);
