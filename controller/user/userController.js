@@ -483,7 +483,7 @@ exports.addToCart = async (req, res, next) => {
                 }
                 const cartItemIndex = cart.items.findIndex(item => item.dishId.toString() === dishId && item.size === size);
                 if (cartItemIndex !== -1) {
-                        cart.items[cartItemIndex].numPortions += numPortions;
+                        cart.items[cartItemIndex].numPortions += parseInt(numPortions);
                         cart.items[cartItemIndex].totalPrice = price * cart.items[cartItemIndex].numPortions;
                 } else {
                         cart.items.push({ dishId, numPortions, size, totalPrice: price * numPortions });
